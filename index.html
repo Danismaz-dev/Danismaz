@@ -6,683 +6,201 @@
   <meta name="theme-color" content="#0f172a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>DANIŞMAZ — Kurumsal Geofence Puantaj & Devam Takip Sistemi</title>
-
+  <title>DANIŞMAZ — Kurumsal Puantaj & Devam Takip</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
   <style>
-    :root {
-      --primary: #2563eb;
-      --primary-hover: #1d4ed8;
-      --primary-light: #eff6ff;
-      --success: #10b981;
-      --success-light: #ecfdf5;
-      --warning: #f59e0b;
-      --warning-light: #fffbeb;
-      --danger: #ef4444;
-      --danger-light: #fef2f2;
-      --dark: #0f172a;
-      --slate-800: #1e293b;
-      --slate-700: #334155;
-      --slate-600: #475569;
-      --slate-500: #64748b;
-      --slate-400: #94a3b8;
-      --slate-300: #cbd5e1;
-      --slate-200: #e2e8f0;
-      --slate-100: #f1f5f9;
-      --slate-50: #f8fafc;
-      --white: #ffffff;
-      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-      --radius: 12px;
-      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    :root{
+      --primary:#2563eb;--primary-hover:#1d4ed8;--primary-light:#eff6ff;
+      --success:#10b981;--success-light:#ecfdf5;--warning:#f59e0b;--warning-light:#fffbeb;
+      --danger:#ef4444;--danger-light:#fef2f2;--dark:#0f172a;
+      --slate-800:#1e293b;--slate-700:#334155;--slate-600:#475569;--slate-500:#64748b;
+      --slate-400:#94a3b8;--slate-300:#cbd5e1;--slate-200:#e2e8f0;--slate-100:#f1f5f9;--slate-50:#f8fafc;
+      --white:#fff;
+      --shadow-sm:0 1px 2px 0 rgb(0 0 0/.05);
+      --shadow:0 4px 6px -1px rgb(0 0 0/.1),0 2px 4px -2px rgb(0 0 0/.1);
+      --shadow-lg:0 10px 15px -3px rgb(0 0 0/.1),0 4px 6px -4px rgb(0 0 0/.1);
+      --radius:12px;--safe-bottom:env(safe-area-inset-bottom,0px);
     }
+    *{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+    body{background:#f8fafc;color:var(--slate-800);min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden;font-size:15px;-webkit-font-smoothing:antialiased}
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      -webkit-tap-highlight-color: transparent;
-    }
+    /* NAVBAR */
+    .navbar{background:var(--white);border-bottom:1px solid var(--slate-200);padding:0.7rem 1rem;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:40;box-shadow:var(--shadow-sm);gap:0.5rem}
+    .brand{display:flex;align-items:center;gap:0.45rem;font-weight:800;font-size:1.1rem;color:var(--dark);text-decoration:none;letter-spacing:-0.5px;flex-shrink:0;cursor:pointer;background:none;border:none}
+    .brand-badge{background:linear-gradient(135deg,#2563eb,#3b82f6);color:#fff;font-size:.65rem;padding:.2rem .45rem;border-radius:6px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap}
+    .nav-right{display:flex;align-items:center;gap:.45rem;flex-shrink:0}
+    .cloud-badge{display:inline-flex;align-items:center;gap:.3rem;font-size:.7rem;font-weight:700;padding:.28rem .55rem;border-radius:9999px;cursor:pointer;transition:all .15s;white-space:nowrap;line-height:1;border:1px solid transparent}
+    .cloud-connected{background:#dcfce7;color:#15803d;border-color:#86efac}
+    .cloud-connected:hover{background:#bbf7d0}
+    .cloud-local{background:#fef9c3;color:#854d0e;border-color:#fde047}
+    .cloud-local:hover{background:#fef08a}
+    .user-pill{display:flex;align-items:center;gap:.45rem;background:var(--slate-100);padding:.28rem .6rem;border-radius:9999px;border:1px solid var(--slate-200);font-size:.78rem;min-width:0}
+    .user-pill .role-badge{font-size:.6rem;font-weight:700;padding:.15rem .4rem;border-radius:9999px;text-transform:uppercase;white-space:nowrap;line-height:1}
+    .role-super{background:#fee2e2;color:#991b1b}
+    .role-admin{background:#fef3c7;color:#b45309}
+    .role-emp{background:#dbeafe;color:#1e40af}
+    #navUserName{font-weight:600;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .btn-logout{background:none;border:none;cursor:pointer;color:var(--slate-500);padding:.35rem;display:flex;align-items:center;border-radius:6px;transition:all .15s;flex-shrink:0}
+    .btn-logout:hover{color:var(--danger);background:var(--danger-light)}
 
-    body {
-      background-color: #f8fafc;
-      color: var(--slate-800);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      overflow-x: hidden;
-      font-size: 15px;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
+    /* SUBNAV */
+    .subnav{background:var(--white);border-bottom:1px solid var(--slate-200);display:flex;padding:0 .5rem;overflow-x:auto;gap:.15rem;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:sticky;top:54px;z-index:30}
+    .subnav::-webkit-scrollbar{display:none}
+    .subnav-tab{padding:.7rem .75rem;font-size:.82rem;font-weight:600;color:var(--slate-600);background:none;border:none;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0}
+    .subnav-tab:hover{color:var(--primary)}
+    .subnav-tab.active{color:var(--primary);border-bottom-color:var(--primary)}
 
-    /* ========== NAVBAR ========== */
-    .navbar {
-      background: var(--white);
-      border-bottom: 1px solid var(--slate-200);
-      padding: 0.75rem 1rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 40;
-      box-shadow: var(--shadow-sm);
-      gap: 0.5rem;
-    }
+    /* CONTAINER */
+    .container{max-width:1200px;margin:.85rem auto;padding:0 .75rem calc(1.5rem + var(--safe-bottom)) .75rem;width:100%;flex:1}
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 0.45rem;
-      font-weight: 800;
-      font-size: 1.1rem;
-      color: var(--dark);
-      text-decoration: none;
-      letter-spacing: -0.5px;
-      flex-shrink: 0;
-    }
+    /* VIEWS */
+    .view-section{display:none}
+    .view-section.active{display:block;animation:fadeIn .15s ease-out}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 
-    .brand-badge {
-      background: linear-gradient(135deg, #2563eb, #3b82f6);
-      color: white;
-      font-size: 0.65rem;
-      padding: 0.2rem 0.45rem;
-      border-radius: 6px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
+    /* CARDS */
+    .card{background:var(--white);border-radius:var(--radius);border:1px solid var(--slate-200);box-shadow:var(--shadow-sm);padding:1.1rem;margin-bottom:1rem}
+    .card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.9rem;padding-bottom:.7rem;border-bottom:1px solid var(--slate-100);flex-wrap:wrap;gap:.5rem}
+    .card-title{font-size:.95rem;font-weight:700;color:var(--dark);display:flex;align-items:center;gap:.4rem;line-height:1.3}
 
-    .nav-right {
-      display: flex;
-      align-items: center;
-      gap: 0.45rem;
-      flex-shrink: 0;
-    }
+    /* BUTTONS */
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:.35rem;font-weight:600;font-size:.83rem;padding:.55rem .95rem;border-radius:8px;border:1px solid transparent;cursor:pointer;transition:all .15s;min-height:40px;user-select:none;white-space:nowrap}
+    .btn:active{transform:scale(.98)}
+    .btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+    .btn-primary{background:var(--primary);color:#fff}
+    .btn-primary:hover:not(:disabled){background:var(--primary-hover)}
+    .btn-success{background:var(--success);color:#fff}
+    .btn-success:hover:not(:disabled){background:#059669}
+    .btn-danger{background:var(--danger);color:#fff}
+    .btn-danger:hover:not(:disabled){background:#dc2626}
+    .btn-secondary{background:var(--slate-100);color:var(--slate-700);border-color:var(--slate-300)}
+    .btn-secondary:hover:not(:disabled){background:var(--slate-200)}
+    .btn-sm{padding:.38rem .65rem;font-size:.75rem;min-height:34px;border-radius:6px}
 
-    .cloud-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
-      font-size: 0.7rem;
-      font-weight: 700;
-      padding: 0.28rem 0.55rem;
-      border-radius: 9999px;
-      cursor: pointer;
-      transition: all 0.15s;
-      white-space: nowrap;
-      line-height: 1;
-    }
-    .cloud-connected { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
-    .cloud-connected:hover { background: #bbf7d0; }
-    .cloud-local { background: #fef9c3; color: #854d0e; border: 1px solid #fde047; }
-    .cloud-local:hover { background: #fef08a; }
+    /* FORMS */
+    .form-group{margin-bottom:.85rem}
+    .form-label{display:block;font-size:.8rem;font-weight:600;color:var(--slate-700);margin-bottom:.3rem}
+    .form-control{width:100%;padding:.65rem .8rem;font-size:16px;border:1px solid var(--slate-300);border-radius:8px;outline:none;transition:border-color .15s,box-shadow .15s;background:var(--white);color:var(--slate-800);-webkit-appearance:none;appearance:none}
+    .form-control:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.15)}
 
-    .user-pill {
-      display: flex;
-      align-items: center;
-      gap: 0.45rem;
-      background: var(--slate-100);
-      padding: 0.28rem 0.6rem;
-      border-radius: 9999px;
-      border: 1px solid var(--slate-200);
-      font-size: 0.78rem;
-      min-width: 0;
-    }
+    /* GRIDS */
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:.85rem}
+    .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem}
 
-    .user-pill .role-badge {
-      font-size: 0.6rem;
-      font-weight: 700;
-      padding: 0.15rem 0.4rem;
-      border-radius: 9999px;
-      text-transform: uppercase;
-      white-space: nowrap;
-      line-height: 1;
-    }
-    .role-super { background: #fee2e2; color: #991b1b; }
-    .role-admin { background: #fef3c7; color: #b45309; }
-    .role-emp { background: #dbeafe; color: #1e40af; }
+    /* METRIC CARDS */
+    .metric-card{background:var(--slate-50);border:1px solid var(--slate-200);border-radius:10px;padding:.75rem;display:flex;flex-direction:column;gap:.15rem}
+    .metric-title{font-size:.66rem;font-weight:700;color:var(--slate-500);text-transform:uppercase;letter-spacing:.3px;line-height:1.2}
+    .metric-value{font-size:1.35rem;font-weight:800;color:var(--dark);line-height:1.2}
+    .metric-subtitle{font-size:.64rem;color:var(--slate-500);line-height:1.2}
 
-    #navUserName {
-      font-weight: 600;
-      max-width: 90px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
+    /* GEOFENCE */
+    .geofence-box{background:#f8fafc;border:1px solid var(--slate-200);border-radius:12px;padding:.9rem;margin-bottom:.9rem;display:flex;flex-direction:column;gap:.65rem}
+    .geofence-status-banner{display:flex;align-items:center;gap:.45rem;padding:.65rem .8rem;border-radius:8px;font-weight:600;font-size:.82rem;line-height:1.4}
+    .status-inside{background:var(--success-light);color:#065f46;border:1px solid #a7f3d0}
+    .status-outside{background:var(--danger-light);color:#991b1b;border:1px solid #fecaca}
+    .status-locating{background:var(--warning-light);color:#92400e;border:1px solid #fde68a}
 
-    .btn-logout {
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: var(--slate-500);
-      padding: 0.35rem;
-      display: flex;
-      align-items: center;
-      border-radius: 6px;
-      transition: all 0.15s;
-      flex-shrink: 0;
-    }
-    .btn-logout:hover { color: var(--danger); background: var(--danger-light); }
+    /* PUNCH BUTTONS */
+    .punch-actions{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:.9rem 0}
+    .punch-btn{padding:1rem .75rem;font-size:1rem;font-weight:800;border-radius:12px;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;transition:all .2s;box-shadow:var(--shadow);min-height:78px;user-select:none;text-align:center}
+    .punch-btn:active:not(:disabled){transform:scale(.97)}
+    .punch-btn-in{background:linear-gradient(135deg,#10b981,#059669);color:#fff}
+    .punch-btn-in:hover:not(:disabled){background:linear-gradient(135deg,#059669,#047857)}
+    .punch-btn-out{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff}
+    .punch-btn-out:hover:not(:disabled){background:linear-gradient(135deg,#dc2626,#b91c1c)}
+    .punch-btn:disabled{opacity:.35;cursor:not-allowed;box-shadow:none;transform:none}
 
-    /* ========== SUBNAV ========== */
-    .subnav {
-      background: var(--white);
-      border-bottom: 1px solid var(--slate-200);
-      display: flex;
-      padding: 0 0.5rem;
-      overflow-x: auto;
-      gap: 0.15rem;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-      position: sticky;
-      top: 54px;
-      z-index: 30;
-    }
-    .subnav::-webkit-scrollbar { display: none; }
+    /* TABLES */
+    .table-container{width:100%;overflow-x:auto;border:1px solid var(--slate-200);border-radius:8px;-webkit-overflow-scrolling:touch;background:var(--white);position:relative}
+    table{width:100%;border-collapse:collapse;font-size:.8rem;text-align:left;min-width:580px}
+    th{background:var(--slate-100);color:var(--slate-700);font-weight:700;padding:.6rem .7rem;border-bottom:1px solid var(--slate-200);white-space:nowrap;font-size:.75rem;position:sticky;top:0;z-index:1}
+    td{padding:.6rem .7rem;border-bottom:1px solid var(--slate-200);color:var(--slate-700);white-space:nowrap}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:var(--slate-50)}
 
-    .subnav-tab {
-      padding: 0.7rem 0.75rem;
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--slate-600);
-      background: none;
-      border: none;
-      border-bottom: 3px solid transparent;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: all 0.15s;
-      flex-shrink: 0;
-    }
-    .subnav-tab:hover { color: var(--primary); }
-    .subnav-tab.active {
-      color: var(--primary);
-      border-bottom-color: var(--primary);
-    }
+    /* BADGES */
+    .badge{display:inline-flex;align-items:center;gap:.2rem;padding:.18rem .45rem;border-radius:5px;font-size:.68rem;font-weight:700;white-space:nowrap;line-height:1.2}
+    .badge-in{background:#d1fae5;color:#065f46}
+    .badge-out{background:#fee2e2;color:#991b1b}
+    .badge-done{background:#e0e7ff;color:#3730a3}
+    .badge-open{background:#fef3c7;color:#92400e}
 
-    /* ========== CONTAINER ========== */
-    .container {
-      max-width: 1200px;
-      margin: 0.85rem auto;
-      padding: 0 0.75rem calc(1.5rem + var(--safe-bottom)) 0.75rem;
-      width: 100%;
-      flex: 1;
-    }
+    /* MODAL */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:50;display:none;align-items:center;justify-content:center;padding:.75rem}
+    .modal-backdrop.open{display:flex}
+    .modal{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow-lg);width:100%;max-width:500px;padding:1.25rem;animation:modalPop .18s ease-out;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+    @keyframes modalPop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+    .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.9rem;padding-bottom:.5rem;border-bottom:1px solid var(--slate-200);gap:.5rem}
+    .modal-title{font-weight:800;font-size:1rem;color:var(--dark)}
+    .modal-close{background:none;border:none;font-size:1.5rem;color:var(--slate-400);cursor:pointer;line-height:1;padding:.2rem;flex-shrink:0}
+    .modal-close:hover{color:var(--danger)}
 
-    /* ========== VIEWS ========== */
-    .view-section { display: none; }
-    .view-section.active { display: block; animation: fadeIn 0.15s ease-out; }
+    /* TOAST */
+    .toast-container{position:fixed;bottom:calc(1rem + var(--safe-bottom));right:.75rem;left:.75rem;z-index:9999;display:flex;flex-direction:column;gap:.45rem;pointer-events:none;max-width:420px;margin-left:auto}
+    .toast{background:var(--dark);color:#fff;padding:.7rem 1rem;border-radius:8px;font-size:.82rem;font-weight:500;box-shadow:var(--shadow-lg);pointer-events:auto;animation:toastIn .2s ease-out;display:flex;align-items:center;gap:.4rem;line-height:1.4}
+    .toast-success{background:#065f46;border-left:4px solid #10b981}
+    .toast-danger{background:#7f1d1d;border-left:4px solid #ef4444}
+    .toast-warning{background:#78350f;border-left:4px solid #f59e0b}
+    @keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    /* LOGIN */
+    .login-wrapper{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%)}
+    .login-box{background:var(--white);border-radius:16px;padding:2rem 1.75rem;width:100%;max-width:400px;box-shadow:0 25px 35px -5px rgb(0 0 0/.35)}
+    .login-header{text-align:center;margin-bottom:1.35rem}
+    .login-logo{font-size:1.9rem;font-weight:900;color:var(--primary);letter-spacing:-1px;line-height:1.1}
+    .login-sub{color:var(--slate-500);font-size:.82rem;margin-top:.3rem}
+    .login-footer{margin-top:1.5rem;text-align:center;font-size:.7rem;color:var(--slate-400);line-height:1.5}
+    .login-warning{background:var(--warning-light);color:#92400e;border:1px solid #fde68a;padding:.6rem .75rem;border-radius:8px;font-size:.75rem;margin-bottom:.9rem;line-height:1.4;display:none}
+    .login-warning.show{display:block}
 
-    /* ========== CARDS ========== */
-    .card {
-      background: var(--white);
-      border-radius: var(--radius);
-      border: 1px solid var(--slate-200);
-      box-shadow: var(--shadow-sm);
-      padding: 1.1rem;
-      margin-bottom: 1rem;
+    /* RESPONSIVE */
+    @media (max-width:768px){.grid-4{grid-template-columns:1fr 1fr}.grid-2{grid-template-columns:1fr}}
+    @media (max-width:640px){
+      body{font-size:14px}
+      .navbar{padding:.55rem .6rem;gap:.35rem}
+      .brand{font-size:.95rem;gap:.3rem}
+      .brand-badge{font-size:.58rem;padding:.15rem .35rem}
+      .nav-right{gap:.3rem}
+      .cloud-badge{font-size:.62rem;padding:.22rem .4rem}
+      .user-pill{padding:.22rem .45rem;font-size:.7rem;gap:.3rem}
+      .user-pill .role-badge{font-size:.55rem;padding:.1rem .3rem}
+      #navUserName{max-width:65px}
+      .btn-logout{padding:.25rem}
+      .subnav{top:48px;padding:0 .35rem}
+      .subnav-tab{padding:.6rem .6rem;font-size:.75rem}
+      .container{padding:0 .6rem calc(1.5rem + var(--safe-bottom)) .6rem}
+      .card{padding:.85rem;margin-bottom:.85rem;border-radius:10px}
+      .card-header{margin-bottom:.7rem;padding-bottom:.5rem}
+      .card-title{font-size:.88rem}
+      .metric-card{padding:.65rem}
+      .metric-title{font-size:.6rem}
+      .metric-value{font-size:1.15rem}
+      .metric-subtitle{font-size:.58rem}
+      .punch-actions{grid-template-columns:1fr;gap:.65rem}
+      .punch-btn{min-height:72px;padding:.9rem .6rem;font-size:.95rem}
+      .btn{font-size:.78rem;padding:.5rem .8rem;min-height:38px}
+      .btn-sm{font-size:.72rem;padding:.35rem .55rem;min-height:32px}
+      .geofence-box{padding:.75rem;gap:.55rem}
+      .geofence-status-banner{padding:.55rem .65rem;font-size:.76rem}
+      table{font-size:.72rem;min-width:540px}
+      th,td{padding:.5rem .55rem}
+      th{font-size:.68rem}
+      .modal{padding:1rem;max-height:94vh}
+      .modal-title{font-size:.92rem}
+      .login-box{padding:1.65rem 1.35rem}
+      .login-logo{font-size:1.65rem}
+      .toast{font-size:.78rem;padding:.6rem .85rem}
     }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 0.9rem;
-      padding-bottom: 0.7rem;
-      border-bottom: 1px solid var(--slate-100);
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-
-    .card-title {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: var(--dark);
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      line-height: 1.3;
-    }
-
-    /* ========== BUTTONS ========== */
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.35rem;
-      font-weight: 600;
-      font-size: 0.83rem;
-      padding: 0.55rem 0.95rem;
-      border-radius: 8px;
-      border: 1px solid transparent;
-      cursor: pointer;
-      transition: all 0.15s;
-      min-height: 40px;
-      user-select: none;
-      white-space: nowrap;
-    }
-    .btn:active { transform: scale(0.98); }
-    .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
-    .btn-success { background: var(--success); color: white; }
-    .btn-success:hover:not(:disabled) { background: #059669; }
-    .btn-danger { background: var(--danger); color: white; }
-    .btn-danger:hover:not(:disabled) { background: #dc2626; }
-    .btn-secondary { background: var(--slate-100); color: var(--slate-700); border-color: var(--slate-300); }
-    .btn-secondary:hover:not(:disabled) { background: var(--slate-200); }
-    .btn-sm { padding: 0.38rem 0.65rem; font-size: 0.75rem; min-height: 34px; border-radius: 6px; }
-
-    /* ========== FORMS ========== */
-    .form-group {
-      margin-bottom: 0.85rem;
-    }
-    .form-label {
-      display: block;
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--slate-700);
-      margin-bottom: 0.3rem;
-    }
-    .form-control {
-      width: 100%;
-      padding: 0.65rem 0.8rem;
-      font-size: 16px;
-      border: 1px solid var(--slate-300);
-      border-radius: 8px;
-      outline: none;
-      transition: border-color 0.15s, box-shadow 0.15s;
-      background: var(--white);
-      color: var(--slate-800);
-      -webkit-appearance: none;
-      appearance: none;
-    }
-    .form-control:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-    }
-
-    /* ========== GRID ========== */
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.85rem;
-    }
-    .grid-4 {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 0.6rem;
-    }
-
-    /* ========== METRIC CARDS ========== */
-    .metric-card {
-      background: var(--slate-50);
-      border: 1px solid var(--slate-200);
-      border-radius: 10px;
-      padding: 0.75rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.15rem;
-    }
-    .metric-title {
-      font-size: 0.66rem;
-      font-weight: 700;
-      color: var(--slate-500);
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
-      line-height: 1.2;
-    }
-    .metric-value {
-      font-size: 1.35rem;
-      font-weight: 800;
-      color: var(--dark);
-      line-height: 1.2;
-    }
-    .metric-subtitle {
-      font-size: 0.64rem;
-      color: var(--slate-500);
-      line-height: 1.2;
-    }
-
-    /* ========== GEOFENCE BOX ========== */
-    .geofence-box {
-      background: #f8fafc;
-      border: 1px solid var(--slate-200);
-      border-radius: 12px;
-      padding: 0.9rem;
-      margin-bottom: 0.9rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.65rem;
-    }
-
-    .geofence-status-banner {
-      display: flex;
-      align-items: center;
-      gap: 0.45rem;
-      padding: 0.65rem 0.8rem;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 0.82rem;
-      line-height: 1.4;
-    }
-    .status-inside { background: var(--success-light); color: #065f46; border: 1px solid #a7f3d0; }
-    .status-outside { background: var(--danger-light); color: #991b1b; border: 1px solid #fecaca; }
-    .status-locating { background: var(--warning-light); color: #92400e; border: 1px solid #fde68a; }
-
-    /* ========== PUNCH BUTTONS ========== */
-    .punch-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.75rem;
-      margin: 0.9rem 0;
-    }
-
-    .punch-btn {
-      padding: 1rem 0.75rem;
-      font-size: 1rem;
-      font-weight: 800;
-      border-radius: 12px;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0.3rem;
-      transition: all 0.2s;
-      box-shadow: var(--shadow);
-      min-height: 78px;
-      user-select: none;
-      text-align: center;
-    }
-    .punch-btn:active:not(:disabled) { transform: scale(0.97); }
-    .punch-btn-in {
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: white;
-    }
-    .punch-btn-in:hover:not(:disabled) {
-      background: linear-gradient(135deg, #059669, #047857);
-    }
-    .punch-btn-out {
-      background: linear-gradient(135deg, #ef4444, #dc2626);
-      color: white;
-    }
-    .punch-btn-out:hover:not(:disabled) {
-      background: linear-gradient(135deg, #dc2626, #b91c1c);
-    }
-    .punch-btn:disabled {
-      opacity: 0.35;
-      cursor: not-allowed;
-      box-shadow: none;
-      transform: none;
-    }
-
-    /* ========== TABLES ========== */
-    .table-container {
-      width: 100%;
-      overflow-x: auto;
-      border: 1px solid var(--slate-200);
-      border-radius: 8px;
-      -webkit-overflow-scrolling: touch;
-      background: var(--white);
-      position: relative;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.8rem;
-      text-align: left;
-      min-width: 580px;
-    }
-    th {
-      background: var(--slate-100);
-      color: var(--slate-700);
-      font-weight: 700;
-      padding: 0.6rem 0.7rem;
-      border-bottom: 1px solid var(--slate-200);
-      white-space: nowrap;
-      font-size: 0.75rem;
-      position: sticky;
-      top: 0;
-    }
-    td {
-      padding: 0.6rem 0.7rem;
-      border-bottom: 1px solid var(--slate-200);
-      color: var(--slate-700);
-      white-space: nowrap;
-    }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: var(--slate-50); }
-
-    /* ========== BADGES ========== */
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.2rem;
-      padding: 0.18rem 0.45rem;
-      border-radius: 5px;
-      font-size: 0.68rem;
-      font-weight: 700;
-      white-space: nowrap;
-      line-height: 1.2;
-    }
-    .badge-in { background: #d1fae5; color: #065f46; }
-    .badge-out { background: #fee2e2; color: #991b1b; }
-    .badge-done { background: #e0e7ff; color: #3730a3; }
-    .badge-open { background: #fef3c7; color: #92400e; }
-
-    /* ========== MODAL ========== */
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, 0.6);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      z-index: 50;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 0.75rem;
-    }
-    .modal-backdrop.open { display: flex; }
-    .modal {
-      background: var(--white);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow-lg);
-      width: 100%;
-      max-width: 500px;
-      padding: 1.25rem;
-      animation: modalPop 0.18s ease-out;
-      max-height: 92vh;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-    @keyframes modalPop {
-      from { opacity: 0; transform: scale(0.96); }
-      to { opacity: 1; transform: scale(1); }
-    }
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.9rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid var(--slate-200);
-      gap: 0.5rem;
-    }
-    .modal-title { font-weight: 800; font-size: 1rem; color: var(--dark); }
-    .modal-close {
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      color: var(--slate-400);
-      cursor: pointer;
-      line-height: 1;
-      padding: 0.2rem;
-      flex-shrink: 0;
-    }
-    .modal-close:hover { color: var(--danger); }
-
-    /* ========== TOAST ========== */
-    .toast-container {
-      position: fixed;
-      bottom: calc(1rem + var(--safe-bottom));
-      right: 0.75rem;
-      left: 0.75rem;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      gap: 0.45rem;
-      pointer-events: none;
-      max-width: 420px;
-      margin-left: auto;
-    }
-    .toast {
-      background: var(--dark);
-      color: white;
-      padding: 0.7rem 1rem;
-      border-radius: 8px;
-      font-size: 0.82rem;
-      font-weight: 500;
-      box-shadow: var(--shadow-lg);
-      pointer-events: auto;
-      animation: toastIn 0.2s ease-out;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      line-height: 1.4;
-    }
-    .toast-success { background: #065f46; border-left: 4px solid #10b981; }
-    .toast-danger { background: #7f1d1d; border-left: 4px solid #ef4444; }
-    .toast-warning { background: #78350f; border-left: 4px solid #f59e0b; }
-    @keyframes toastIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ========== LOGIN ========== */
-    .login-wrapper {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-    }
-    .login-box {
-      background: var(--white);
-      border-radius: 16px;
-      padding: 2rem 1.75rem;
-      width: 100%;
-      max-width: 400px;
-      box-shadow: 0 25px 35px -5px rgb(0 0 0 / 0.35);
-    }
-    .login-header {
-      text-align: center;
-      margin-bottom: 1.35rem;
-    }
-    .login-logo {
-      font-size: 1.9rem;
-      font-weight: 900;
-      color: var(--primary);
-      letter-spacing: -1px;
-      line-height: 1.1;
-    }
-    .login-sub {
-      color: var(--slate-500);
-      font-size: 0.82rem;
-      margin-top: 0.3rem;
-    }
-    .login-note {
-      margin-top: 1.1rem;
-      font-size: 0.72rem;
-      color: var(--slate-400);
-      text-align: center;
-      line-height: 1.5;
-    }
-    .login-footer {
-      margin-top: 1.5rem;
-      text-align: center;
-      font-size: 0.7rem;
-      color: var(--slate-400);
-      line-height: 1.5;
-    }
-
-    /* ========== RESPONSIVE ========== */
-    @media (max-width: 768px) {
-      .grid-4 { grid-template-columns: 1fr 1fr; }
-      .grid-2 { grid-template-columns: 1fr; }
-    }
-
-    @media (max-width: 640px) {
-      body { font-size: 14px; }
-      .navbar { padding: 0.55rem 0.6rem; gap: 0.35rem; }
-      .brand { font-size: 0.95rem; gap: 0.3rem; }
-      .brand-badge { font-size: 0.58rem; padding: 0.15rem 0.35rem; }
-      .nav-right { gap: 0.3rem; }
-      .cloud-badge { font-size: 0.62rem; padding: 0.22rem 0.4rem; }
-      .user-pill { padding: 0.22rem 0.45rem; font-size: 0.7rem; gap: 0.3rem; }
-      .user-pill .role-badge { font-size: 0.55rem; padding: 0.1rem 0.3rem; }
-      #navUserName { max-width: 65px; }
-      .btn-logout { padding: 0.25rem; }
-
-      .subnav { top: 48px; padding: 0 0.35rem; }
-      .subnav-tab { padding: 0.6rem 0.6rem; font-size: 0.75rem; }
-
-      .container { padding: 0 0.6rem calc(1.5rem + var(--safe-bottom)) 0.6rem; }
-      .card { padding: 0.85rem; margin-bottom: 0.85rem; border-radius: 10px; }
-      .card-header { margin-bottom: 0.7rem; padding-bottom: 0.5rem; }
-      .card-title { font-size: 0.88rem; }
-
-      .metric-card { padding: 0.65rem; }
-      .metric-title { font-size: 0.6rem; }
-      .metric-value { font-size: 1.15rem; }
-      .metric-subtitle { font-size: 0.58rem; }
-
-      .punch-actions { grid-template-columns: 1fr; gap: 0.65rem; }
-      .punch-btn { min-height: 72px; padding: 0.9rem 0.6rem; font-size: 0.95rem; }
-
-      .btn { font-size: 0.78rem; padding: 0.5rem 0.8rem; min-height: 38px; }
-      .btn-sm { font-size: 0.72rem; padding: 0.35rem 0.55rem; min-height: 32px; }
-
-      .geofence-box { padding: 0.75rem; gap: 0.55rem; }
-      .geofence-status-banner { padding: 0.55rem 0.65rem; font-size: 0.76rem; }
-
-      table { font-size: 0.72rem; min-width: 540px; }
-      th, td { padding: 0.5rem 0.55rem; }
-      th { font-size: 0.68rem; }
-
-      .modal { padding: 1rem; max-height: 94vh; }
-      .modal-title { font-size: 0.92rem; }
-
-      .login-box { padding: 1.65rem 1.35rem; }
-      .login-logo { font-size: 1.65rem; }
-
-      .toast { font-size: 0.78rem; padding: 0.6rem 0.85rem; }
-    }
-
-    @media (max-width: 380px) {
-      .brand { font-size: 0.88rem; }
-      .user-pill .role-badge { display: none; }
-      .punch-btn { font-size: 0.88rem; min-height: 66px; }
-      .metric-value { font-size: 1.05rem; }
-      .subnav-tab { font-size: 0.72rem; padding: 0.55rem 0.55rem; }
+    @media (max-width:380px){
+      .brand{font-size:.88rem}
+      .user-pill .role-badge{display:none}
+      .punch-btn{font-size:.88rem;min-height:66px}
+      .metric-value{font-size:1.05rem}
+      .subnav-tab{font-size:.72rem;padding:.55rem .55rem}
     }
   </style>
 </head>
@@ -690,69 +208,54 @@
 
   <div class="toast-container" id="toastContainer"></div>
 
-  <!-- ========================================== -->
-  <!-- LOGIN SCREEN (CLEAN — NO EXAMPLE CREDS)    -->
-  <!-- ========================================== -->
+  <!-- LOGIN -->
   <div id="loginView" class="login-wrapper">
     <div class="login-box">
       <div class="login-header">
         <div class="login-logo">DANIŞMAZ <span class="brand-badge">Puantaj</span></div>
         <p class="login-sub">Personel Devam Takip & Mesai Portalı</p>
-        <div style="margin-top: 0.55rem;">
-          <span id="loginCloudBadge" class="cloud-badge cloud-local" onclick="openSettingsModal()">
-            💾 Yerel Mod
-          </span>
+        <div style="margin-top:.55rem;">
+          <span id="loginCloudBadge" class="cloud-badge cloud-local" onclick="openSettingsModal()">💾 Yerel Mod</span>
         </div>
       </div>
 
-      <form id="loginForm" onsubmit="handleLogin(event)" autocomplete="off">
+      <div id="loginWarning" class="login-warning">
+        ⚠️ Bulut bağlantısı henüz yapılandırılmadı. Giriş için yukarıdaki "Yerel Mod" rozetine tıklayarak Google Sheets URL'nizi girin.
+      </div>
+
+      <form id="loginForm" onsubmit="handleLogin(event)" autocomplete="on">
         <div class="form-group">
           <label class="form-label" for="loginUsername">Kullanıcı Adı</label>
-          <input type="text" id="loginUsername" name="danismaz_user_field" class="form-control" placeholder="Kullanıcı adınız" required autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
+          <input type="text" id="loginUsername" class="form-control" placeholder="Kullanıcı adınız" required autocomplete="username" autocorrect="off" autocapitalize="none" spellcheck="false">
         </div>
         <div class="form-group">
-          <label class="form-label" for="loginPassword">Şifre / PIN Kodu</label>
-          <input type="password" id="loginPassword" name="danismaz_pass_field" class="form-control" placeholder="Şifreniz" required autocomplete="new-password">
+          <label class="form-label" for="loginPassword">Şifre / PIN</label>
+          <input type="password" id="loginPassword" class="form-control" placeholder="Şifreniz" required autocomplete="current-password">
         </div>
-
-        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.6rem; padding: 0.75rem; font-size: 0.95rem;">
-          Giriş Yap
-        </button>
+        <button type="submit" class="btn btn-primary" style="width:100%;margin-top:.6rem;padding:.75rem;font-size:.95rem;">Giriş Yap</button>
       </form>
-
-      <div class="login-note">
-        Sisteme kayıtlı kullanıcı bilgilerinizle giriş yapın.
-      </div>
 
       <div class="login-footer">
         DANIŞMAZ Kurumsal Puantaj Sistemi<br>
-        <span style="opacity: 0.7;">© 2024 — Tüm hakları saklıdır</span>
+        <span style="opacity:.7;">© 2024 — Tüm hakları saklıdır</span>
       </div>
     </div>
   </div>
 
-  <!-- ========================================== -->
-  <!-- MAIN APPLICATION                           -->
-  <!-- ========================================== -->
-  <div id="appView" style="display: none; flex-direction: column; min-height: 100vh;">
-
+  <!-- APP -->
+  <div id="appView" style="display:none;flex-direction:column;min-height:100vh;">
     <header class="navbar">
-      <a href="#" class="brand" onclick="switchTab('tabPunch'); return false;">
+      <button class="brand" onclick="switchTab('tabPunch')">
         DANIŞMAZ <span class="brand-badge">Puantaj</span>
-      </a>
-
+      </button>
       <div class="nav-right">
-        <span id="navCloudBadge" class="cloud-badge cloud-local" onclick="openSettingsModal()" title="Google Sheets Bulut Ayarları">
-          ☁️ Bulut
-        </span>
-
+        <span id="navCloudBadge" class="cloud-badge cloud-local" title="Bulut Bağlantısı">☁️ Bulut</span>
         <div class="user-pill">
           <span id="navRoleBadge" class="role-badge role-emp">ÇALIŞAN</span>
           <span id="navUserName">Kullanıcı</span>
         </div>
-
-        <button class="btn-logout" title="Çıkış Yap" onclick="handleLogout()">
-          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+        <button class="btn-logout" title="Çıkış" onclick="handleLogout()">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
         </button>
       </div>
     </header>
@@ -767,31 +270,26 @@
 
     <main class="container">
 
-      <!-- ============ TAB 1: PUNCH ============ -->
       <section id="tabPunch" class="view-section active">
-
         <div class="card">
           <div class="card-header">
             <span class="card-title">
-              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               Canlı Devam Kaydı
             </span>
-            <div id="liveTimeClock" style="font-weight: 700; color: var(--slate-600); font-size: 0.8rem;">--:--:--</div>
+            <div id="liveTimeClock" style="font-weight:700;color:var(--slate-600);font-size:.8rem;">--:--:--</div>
           </div>
 
           <div class="geofence-box">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
-              <div style="flex: 1; min-width: 180px;">
-                <label class="form-label" style="margin-bottom: 0.15rem;">Çalışma Lokasyonu:</label>
-                <div style="font-weight: 700; color: var(--dark); font-size: 0.9rem;">
-                  📍 Danışmaz 3 Tesisi <small style="color:var(--slate-500); font-weight: 500;">(250m yarıçap)</small>
-                </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;">
+              <div style="flex:1;min-width:180px;">
+                <label class="form-label" style="margin-bottom:.15rem;">Çalışma Lokasyonu:</label>
+                <div style="font-weight:700;color:var(--dark);font-size:.9rem;">📍 Danışmaz 3 Tesisi <small style="color:var(--slate-500);font-weight:500;">(250m)</small></div>
               </div>
-
-              <div style="display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap;">
+              <div id="debugButtons" style="display:none;gap:.35rem;align-items:center;flex-wrap:wrap;">
                 <button class="btn btn-secondary btn-sm" onclick="fetchLiveGPS()" title="GPS Yenile">🔄 GPS</button>
-                <button class="btn btn-secondary btn-sm" onclick="simulateInsideGeofence()" title="Test: Fabrika içi">🎯 Test İçi</button>
-                <button class="btn btn-secondary btn-sm" onclick="simulate5KmAway()" title="Test: 5 km dışı">🚗 Test Dışı</button>
+                <button class="btn btn-secondary btn-sm" onclick="simulateInsideGeofence()">🎯 Test İçi</button>
+                <button class="btn btn-secondary btn-sm" onclick="simulate5KmAway()">🚗 Test Dışı</button>
               </div>
             </div>
 
@@ -799,32 +297,31 @@
               <span>📡 GPS konumu alınıyor...</span>
             </div>
 
-            <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--slate-600); flex-wrap: wrap; gap: 0.3rem;">
+            <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--slate-600);flex-wrap:wrap;gap:.3rem;">
               <span id="coordsDisplay">Koordinat: Alınmadı</span>
               <span id="distanceDisplay">Mesafe: Hesaplanıyor...</span>
             </div>
           </div>
 
-          <div id="punchStateAlert" style="margin-bottom: 0.85rem; padding: 0.65rem 0.8rem; border-radius: 8px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; justify-content: space-between; background: var(--slate-100); color: var(--slate-700); flex-wrap: wrap; gap: 0.35rem;">
+          <div id="punchStateAlert" style="margin-bottom:.85rem;padding:.65rem .8rem;border-radius:8px;font-size:.8rem;font-weight:600;display:flex;align-items:center;justify-content:space-between;background:var(--slate-100);color:var(--slate-700);flex-wrap:wrap;gap:.35rem;">
             <span id="punchStateText">Durum yükleniyor...</span>
             <span id="lastPunchBadge" class="badge">--</span>
           </div>
 
           <div class="punch-actions">
             <button id="btnPunchIn" class="punch-btn punch-btn-in" onclick="submitPunch('GİRİŞ')">
-              <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
+              <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
               <span>VARDİYA GİRİŞ</span>
-              <small style="font-size: 0.65rem; font-weight: 500; opacity: 0.9;">Mesai Başlangıcı</small>
+              <small style="font-size:.65rem;font-weight:500;opacity:.9;">Mesai Başlangıcı</small>
             </button>
-
             <button id="btnPunchOut" class="punch-btn punch-btn-out" onclick="submitPunch('ÇIKIŞ')">
-              <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+              <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
               <span>VARDİYA ÇIKIŞ</span>
-              <small style="font-size: 0.65rem; font-weight: 500; opacity: 0.9;">Mesai Bitişi</small>
+              <small style="font-size:.65rem;font-weight:500;opacity:.9;">Mesai Bitişi</small>
             </button>
           </div>
 
-          <div style="font-size: 0.68rem; color: var(--slate-500); text-align: center; line-height: 1.45;">
+          <div style="font-size:.68rem;color:var(--slate-500);text-align:center;line-height:1.45;">
             🛡️ Giriş/Çıkış için 250m sınırında olmanız gerekir.<br>Fabrikadan 5 km uzaklaşıldığında sistem otomatik ÇIKIŞ yapar.
           </div>
         </div>
@@ -832,15 +329,13 @@
         <div class="card">
           <div class="card-header">
             <span class="card-title">
-              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
               Aylık Çalışma Grafiği
             </span>
-            <div style="display: flex; gap: 0.4rem; align-items: center;">
-              <select id="chartMonthSelect" class="form-control" style="padding: 0.35rem 0.6rem; font-size: 0.78rem; width: auto;" onchange="renderMonthlyChart()"></select>
-            </div>
+            <select id="chartMonthSelect" class="form-control" style="padding:.35rem .6rem;font-size:.78rem;width:auto;" onchange="renderMonthlyChart()"></select>
           </div>
 
-          <div class="grid-4" style="margin-bottom: 0.9rem;">
+          <div class="grid-4" style="margin-bottom:.9rem;">
             <div class="metric-card">
               <span class="metric-title">Toplam Gün</span>
               <span id="metricDays" class="metric-value">0</span>
@@ -848,121 +343,87 @@
             </div>
             <div class="metric-card">
               <span class="metric-title">Normal Mesai</span>
-              <span id="metricRegularHours" class="metric-value" style="color: var(--primary);">0.0h</span>
+              <span id="metricRegularHours" class="metric-value" style="color:var(--primary);">0.0h</span>
               <span class="metric-subtitle">Max 8h/gün</span>
             </div>
             <div class="metric-card">
               <span class="metric-title">Ek Mesai</span>
-              <span id="metricOvertimeHours" class="metric-value" style="color: #f97316;">0.0h</span>
+              <span id="metricOvertimeHours" class="metric-value" style="color:#f97316;">0.0h</span>
               <span class="metric-subtitle">8h üzeri</span>
             </div>
             <div class="metric-card">
               <span class="metric-title">Toplam Süre</span>
-              <span id="metricTotalHours" class="metric-value" style="color: var(--success);">0.0h</span>
+              <span id="metricTotalHours" class="metric-value" style="color:var(--success);">0.0h</span>
               <span class="metric-subtitle">Net çalışma</span>
             </div>
           </div>
 
-          <div style="position: relative; height: 260px; width: 100%;">
+          <div style="position:relative;height:260px;width:100%;">
             <canvas id="monthlyAttendanceChart"></canvas>
           </div>
 
-          <div style="margin-top: 0.6rem; font-size: 0.7rem; color: var(--slate-500); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.3rem;">
+          <div style="margin-top:.6rem;font-size:.7rem;color:var(--slate-500);display:flex;justify-content:space-between;flex-wrap:wrap;gap:.3rem;">
             <span>■ Mavi: Normal Mesai</span>
             <span>■ Turuncu: Ek Mesai</span>
           </div>
         </div>
-
       </section>
 
-      <!-- ============ TAB 2: MY LOGS ============ -->
       <section id="tabMyLogs" class="view-section">
         <div class="card">
           <div class="card-header">
             <span class="card-title">Geçmiş Kayıtlarım</span>
             <button class="btn btn-secondary btn-sm" onclick="syncWithCloudAndRefresh()">🔄 Yenile</button>
           </div>
-
           <div class="table-container">
             <table>
-              <thead>
-                <tr>
-                  <th>Tarih</th>
-                  <th>Giriş</th>
-                  <th>Çıkış</th>
-                  <th>Toplam</th>
-                  <th>Normal</th>
-                  <th>Ek Mesai</th>
-                  <th>Durum</th>
-                  <th>Lokasyon</th>
-                </tr>
-              </thead>
+              <thead><tr><th>Tarih</th><th>Giriş</th><th>Çıkış</th><th>Toplam</th><th>Normal</th><th>Ek Mesai</th><th>Durum</th><th>Lokasyon</th></tr></thead>
               <tbody id="myLogsTableBody"></tbody>
             </table>
           </div>
         </div>
       </section>
 
-      <!-- ============ TAB 3: ADMIN USERS ============ -->
       <section id="tabAdminUsers" class="view-section">
         <div class="card">
           <div class="card-header">
             <div>
               <span class="card-title">👥 Kullanıcı Yönetimi</span>
-              <p style="font-size: 0.72rem; color: var(--slate-500); margin-top: 0.15rem;">
-                Personel PIN ve yetkilerini yönetin.
-              </p>
+              <p style="font-size:.72rem;color:var(--slate-500);margin-top:.15rem;">Personel PIN ve yetkilerini yönetin.</p>
             </div>
-            <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+            <div style="display:flex;gap:.35rem;flex-wrap:wrap;">
               <button class="btn btn-secondary btn-sm" onclick="syncWithCloudAndRefresh()">🔄 Senkronize</button>
               <button class="btn btn-primary btn-sm" onclick="openUserModal()">➕ Yeni Personel</button>
             </div>
           </div>
-
           <div class="table-container">
             <table>
-              <thead>
-                <tr>
-                  <th>Sicil</th>
-                  <th>Ad Soyad</th>
-                  <th>Kullanıcı Adı</th>
-                  <th>Şifre / PIN</th>
-                  <th>Departman</th>
-                  <th>Rol</th>
-                  <th>Durum</th>
-                  <th>İşlem</th>
-                </tr>
-              </thead>
+              <thead><tr><th>Sicil</th><th>Ad Soyad</th><th>Kullanıcı Adı</th><th>Şifre / PIN</th><th>Departman</th><th>Rol</th><th>Durum</th><th>İşlem</th></tr></thead>
               <tbody id="adminUsersTableBody"></tbody>
             </table>
           </div>
         </div>
       </section>
 
-      <!-- ============ TAB 4: ADMIN LOGS ============ -->
       <section id="tabAdminLogs" class="view-section">
         <div class="card">
           <div class="card-header">
             <div>
               <span class="card-title">📑 Puantaj Raporu</span>
-              <p style="font-size: 0.72rem; color: var(--slate-500); margin-top: 0.15rem;">
-                Tüm personellerin günlük mesai dökümü.
-              </p>
+              <p style="font-size:.72rem;color:var(--slate-500);margin-top:.15rem;">Tüm personellerin günlük mesai dökümü.</p>
             </div>
-            <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+            <div style="display:flex;gap:.35rem;flex-wrap:wrap;">
               <button class="btn btn-secondary btn-sm" onclick="syncWithCloudAndRefresh()">🔄 Yenile</button>
               <button class="btn btn-success btn-sm" onclick="exportPayrollToExcel()">📥 Excel İndir</button>
             </div>
           </div>
 
-          <div style="display: flex; gap: 0.6rem; margin-bottom: 0.9rem; flex-wrap: wrap; align-items: flex-end;">
-            <div style="flex: 1; min-width: 130px;">
+          <div style="display:flex;gap:.6rem;margin-bottom:.9rem;flex-wrap:wrap;align-items:flex-end;">
+            <div style="flex:1;min-width:130px;">
               <label class="form-label">Çalışan:</label>
-              <select id="adminFilterUser" class="form-control" onchange="renderAdminLogsTable()">
-                <option value="ALL">Tüm Personel</option>
-              </select>
+              <select id="adminFilterUser" class="form-control" onchange="renderAdminLogsTable()"><option value="ALL">Tüm Personel</option></select>
             </div>
-            <div style="flex: 1; min-width: 130px;">
+            <div style="flex:1;min-width:130px;">
               <label class="form-label">Ay:</label>
               <select id="adminFilterMonth" class="form-control" onchange="renderAdminLogsTable()"></select>
             </div>
@@ -971,53 +432,38 @@
           <div class="table-container">
             <table>
               <thead>
-                <tr>
-                  <th>Tarih</th>
-                  <th>Personel</th>
-                  <th>Giriş</th>
-                  <th>Çıkış</th>
-                  <th>Toplam</th>
-                  <th>Normal</th>
-                  <th>Ek Mesai</th>
-                  <th>Durum</th>
-                  <th>Lokasyon</th>
-                  <th id="thAdminActions" style="display: none;">İşlem</th>
-                </tr>
+                <tr><th>Tarih</th><th>Personel</th><th>Giriş</th><th>Çıkış</th><th>Toplam</th><th>Normal</th><th>Ek Mesai</th><th>Durum</th><th>Lokasyon</th><th id="thAdminActions" style="display:none;">İşlem</th></tr>
               </thead>
               <tbody id="adminLogsTableBody"></tbody>
             </table>
           </div>
         </div>
       </section>
-
     </main>
   </div>
 
-  <!-- ========================================== -->
-  <!-- MODALS                                     -->
-  <!-- ========================================== -->
-
+  <!-- SETTINGS MODAL -->
   <div id="settingsModal" class="modal-backdrop">
     <div class="modal">
       <div class="modal-header">
         <span class="modal-title">☁️ Google Sheets Bulut Bağlantısı</span>
         <button class="modal-close" onclick="closeSettingsModal()">&times;</button>
       </div>
-      <div>
-        <p style="font-size: 0.82rem; color: var(--slate-600); margin-bottom: 0.85rem;">
-          Google Apps Script Web Uygulaması URL'niz:
-        </p>
-        <div class="form-group">
-          <input type="url" id="settingsSheetsUrl" class="form-control" placeholder="https://script.google.com/macros/s/.../exec">
-        </div>
-        <div style="display: flex; justify-content: flex-end; gap: 0.4rem; margin-top: 0.9rem;">
-          <button type="button" class="btn btn-secondary" onclick="closeSettingsModal()">Kapat</button>
-          <button type="button" class="btn btn-primary" onclick="saveSettingsModal()">Kaydet & Test Et</button>
-        </div>
+      <p style="font-size:.82rem;color:var(--slate-600);margin-bottom:.85rem;">Google Apps Script Web Uygulaması URL'niz:</p>
+      <div class="form-group">
+        <input type="url" id="settingsSheetsUrl" class="form-control" placeholder="https://script.google.com/macros/s/.../exec">
+      </div>
+      <div style="background:#fef9c3;border:1px solid #fde047;border-radius:8px;padding:.6rem .75rem;font-size:.74rem;color:#854d0e;line-height:1.5;margin-bottom:.85rem;">
+        💡 <strong>İlk kurulum:</strong> Google E-Tablonuzda <code>Users_Master</code> sayfasına en az bir kullanıcı ekleyin. Admin için Role sütununa <code>SUPER_ADMIN</code> yazın.
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:.4rem;">
+        <button type="button" class="btn btn-secondary" onclick="closeSettingsModal()">Kapat</button>
+        <button type="button" class="btn btn-primary" onclick="saveSettingsModal()">Kaydet & Test Et</button>
       </div>
     </div>
   </div>
 
+  <!-- USER MODAL -->
   <div id="userModal" class="modal-backdrop">
     <div class="modal">
       <div class="modal-header">
@@ -1026,23 +472,20 @@
       </div>
       <form id="userModalForm" onsubmit="saveUserModal(event)">
         <input type="hidden" id="modalUserId">
-
         <div class="form-group">
           <label class="form-label">Ad Soyad</label>
           <input type="text" id="modalFullName" class="form-control" placeholder="Ad Soyad" required>
         </div>
-
         <div class="grid-2">
           <div class="form-group">
             <label class="form-label">Kullanıcı Adı</label>
-            <input type="text" id="modalUsername" class="form-control" placeholder="kullanici.adi" required autocapitalize="none" autocorrect="off" spellcheck="false">
+            <input type="text" id="modalUsername" class="form-control" placeholder="kullanici.adi" required autocapitalize="none" spellcheck="false">
           </div>
           <div class="form-group">
             <label class="form-label">Şifre / PIN</label>
             <input type="text" id="modalPin" class="form-control" placeholder="Şifre" required>
           </div>
         </div>
-
         <div class="grid-2">
           <div class="form-group">
             <label class="form-label">Sicil No</label>
@@ -1053,7 +496,6 @@
             <input type="text" id="modalDepartment" class="form-control" placeholder="Üretim" required>
           </div>
         </div>
-
         <div class="grid-2">
           <div class="form-group">
             <label class="form-label">Rol</label>
@@ -1070,8 +512,7 @@
             </select>
           </div>
         </div>
-
-        <div style="display: flex; justify-content: flex-end; gap: 0.4rem; margin-top: 1rem;">
+        <div style="display:flex;justify-content:flex-end;gap:.4rem;margin-top:1rem;">
           <button type="button" class="btn btn-secondary" onclick="closeUserModal()">İptal</button>
           <button type="submit" class="btn btn-primary">Kaydet</button>
         </div>
@@ -1079,9 +520,6 @@
     </div>
   </div>
 
-  <!-- ========================================== -->
-  <!-- SCRIPT                                     -->
-  <!-- ========================================== -->
   <script>
     const DEFAULT_GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbzOm_T1cWpF9s7igM5DQI2KjkFSetpDsr1zivSlR0VlwbC5ZZGKmnN2H9mYdlcJaTXyyQ/exec";
 
@@ -1091,25 +529,21 @@
       distanceMeters: null,
       isInsideGeofence: false,
       allowedTransaction: "GİRİŞ",
-      locations: [
-        {
-          location_id: "loc-danismaz-3",
-          name: "Danışmaz 3 Tesisi",
-          latitude: 41.238454,
-          longitude: 36.426137,
-          allowed_radius_meters: 250,
-          is_active: true
-        }
-      ],
+      locations: [{
+        location_id: "loc-danismaz-3",
+        name: "Danışmaz 3 Tesisi",
+        latitude: 41.238454,
+        longitude: 36.426137,
+        allowed_radius_meters: 250,
+        is_active: true
+      }],
       chartInstance: null,
       googleSheetsUrl: localStorage.getItem("danismaz_sheets_url") || DEFAULT_GOOGLE_SHEETS_URL,
       watchId: null,
       isAutoCheckingOut: false
     };
 
-    /* ======================================================== */
-    /* CLOUD SYNC                                              */
-    /* ======================================================== */
+    /* ========== CLOUD SYNC ========== */
     async function fetchFromGoogleSheets() {
       if (!APP_STATE.googleSheetsUrl) return null;
       try {
@@ -1133,9 +567,7 @@
               });
             }
           }
-
           await dbPut("locations", APP_STATE.locations[0]);
-
           if (data.logs && data.logs.length > 0) {
             for (const l of data.logs) {
               await dbPut("attendance_logs", {
@@ -1149,7 +581,8 @@
                 target_location_name: "Danışmaz 3 Tesisi",
                 distance_meters: parseFloat(l.Distance_Meters) || 0,
                 geofence_status: l.Geofence_Status,
-                audit_notes: l.Audit_Notes
+                audit_notes: l.Audit_Notes,
+                sync_pending: false
               });
             }
           }
@@ -1164,11 +597,10 @@
     async function postToGoogleSheets(action, payloadData) {
       if (!APP_STATE.googleSheetsUrl) return false;
       try {
-        const bodyStr = JSON.stringify({ action: action, data: payloadData });
         const res = await fetch(APP_STATE.googleSheetsUrl, {
           method: "POST",
           headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: bodyStr
+          body: JSON.stringify({ action, data: payloadData })
         });
         const json = await res.json();
         return json.success;
@@ -1178,21 +610,44 @@
       }
     }
 
+    async function syncPendingLogs() {
+      if (!APP_STATE.googleSheetsUrl) return;
+      const logs = await dbGetAll("attendance_logs");
+      const pending = logs.filter(l => l.sync_pending === true);
+      for (const log of pending) {
+        const ok = await postToGoogleSheets("punch", log);
+        if (ok) {
+          log.sync_pending = false;
+          await dbPut("attendance_logs", log);
+        }
+      }
+      if (pending.length > 0) console.log(`Synced ${pending.length} pending logs.`);
+    }
+
     function updateCloudBadges() {
       const badges = [document.getElementById("loginCloudBadge"), document.getElementById("navCloudBadge")];
       badges.forEach(b => {
         if (!b) return;
         if (APP_STATE.googleSheetsUrl) {
           b.className = "cloud-badge cloud-connected";
-          b.innerHTML = "☁️ Bulut: Bağlı";
+          b.innerHTML = "☁️ Bağlı";
         } else {
           b.className = "cloud-badge cloud-local";
-          b.innerHTML = "💾 Yerel Mod";
+          b.innerHTML = "💾 Yerel";
         }
       });
+      const warn = document.getElementById("loginWarning");
+      if (warn) warn.classList.toggle("show", !APP_STATE.googleSheetsUrl);
     }
 
     function openSettingsModal() {
+      if (APP_STATE.currentUser) {
+        const isAdmin = (APP_STATE.currentUser.username === "admin" || APP_STATE.currentUser.role === "ADMIN" || APP_STATE.currentUser.role === "SUPER_ADMIN");
+        if (!isAdmin) {
+          showToast("Bulut ayarlarını sadece yönetici değiştirebilir.", "warning");
+          return;
+        }
+      }
       document.getElementById("settingsSheetsUrl").value = APP_STATE.googleSheetsUrl;
       document.getElementById("settingsModal").classList.add("open");
     }
@@ -1227,6 +682,7 @@
       if (APP_STATE.googleSheetsUrl) {
         showToast("Senkronize ediliyor...", "info");
         await fetchFromGoogleSheets();
+        await syncPendingLogs();
         showToast("Senkronizasyon tamamlandı.", "success");
       }
       renderMyLogsTable();
@@ -1235,9 +691,7 @@
       renderMonthlyChart();
     }
 
-    /* ======================================================== */
-    /* INDEXEDDB                                               */
-    /* ======================================================== */
+    /* ========== INDEXEDDB ========== */
     const DB_NAME = "DanismazAttendanceDB";
     const DB_VERSION = 2;
     let db = null;
@@ -1245,160 +699,84 @@
     function initDatabase() {
       return new Promise((resolve, reject) => {
         const request = indexedDB.open(DB_NAME, DB_VERSION);
-
         request.onupgradeneeded = (e) => {
           const database = e.target.result;
-
           if (!database.objectStoreNames.contains("users")) {
-            const userStore = database.createObjectStore("users", { keyPath: "user_id" });
-            userStore.createIndex("username", "username", { unique: true });
+            const s = database.createObjectStore("users", { keyPath: "user_id" });
+            s.createIndex("username", "username", { unique: true });
           }
           if (!database.objectStoreNames.contains("locations")) {
             database.createObjectStore("locations", { keyPath: "location_id" });
           }
           if (!database.objectStoreNames.contains("attendance_logs")) {
-            const logStore = database.createObjectStore("attendance_logs", { keyPath: "log_id" });
-            logStore.createIndex("username", "username", { unique: false });
-            logStore.createIndex("log_date", "log_date", { unique: false });
-            logStore.createIndex("log_timestamp", "log_timestamp", { unique: false });
+            const s = database.createObjectStore("attendance_logs", { keyPath: "log_id" });
+            s.createIndex("username", "username", { unique: false });
+            s.createIndex("log_date", "log_date", { unique: false });
+            s.createIndex("log_timestamp", "log_timestamp", { unique: false });
           }
         };
-
         request.onsuccess = (e) => {
           db = e.target.result;
           seedProductionData().then(resolve);
         };
-
-        request.onerror = (e) => {
-          console.error("IndexedDB error:", e);
-          reject(e);
-        };
+        request.onerror = (e) => { console.error("IndexedDB error:", e); reject(e); };
       });
     }
 
     async function seedProductionData() {
-      // Only Danışmaz 3 Tesisi
+      // ONLY seed location - NO USER CREDENTIALS IN CODE!
       await dbPut("locations", APP_STATE.locations[0]);
       await dbDelete("locations", "loc-1");
       await dbDelete("locations", "loc-2");
       await dbDelete("locations", "loc-samsun-tekkekoy");
-
-      if (APP_STATE.googleSheetsUrl) {
-        await fetchFromGoogleSheets();
-      }
-
-      const prodUsers = [
-        {
-          user_id: "usr-admin",
-          username: "admin",
-          password_pin: "99767Bir786***",
-          full_name: "Sistem Yöneticisi",
-          employee_code: "SYS-001",
-          department: "Yönetim",
-          role: "SUPER_ADMIN",
-          is_active: true
-        },
-        {
-          user_id: "usr-murat",
-          username: "danismaz.murat",
-          password_pin: "danismaz.murat12345",
-          full_name: "Murat Danışmaz",
-          employee_code: "MNG-001",
-          department: "Genel Yönetim",
-          role: "ADMIN",
-          is_active: true
-        },
-        {
-          user_id: "usr-can",
-          username: "zorlu.can",
-          password_pin: "zorlu.can12345",
-          full_name: "Can Zorlu",
-          employee_code: "EMP-001",
-          department: "Üretim / Saha",
-          role: "EMPLOYEE",
-          is_active: true
-        },
-        {
-          user_id: "usr-bedirhan",
-          username: "dulger.bedirhan",
-          password_pin: "dulger.bedirhan12345",
-          full_name: "Bedirhan Dülger",
-          employee_code: "EMP-002",
-          department: "Üretim / Saha",
-          role: "EMPLOYEE",
-          is_active: true
-        },
-        {
-          user_id: "usr-oktay",
-          username: "bas.oktay",
-          password_pin: "bas.oktay12345",
-          full_name: "Oktay Baş",
-          employee_code: "EMP-003",
-          department: "Lojistik / Saha",
-          role: "EMPLOYEE",
-          is_active: true
-        }
-      ];
-
-      for (const u of prodUsers) {
-        const existing = await dbGet("users", u.user_id);
-        if (!existing) await dbPut("users", u);
-      }
-
-      // Purge old demo users
+      // Purge any legacy demo users from previous version
       await dbDelete("users", "usr-mehmet");
       await dbDelete("users", "usr-ayse");
+      await dbDelete("users", "usr-can");
+      await dbDelete("users", "usr-bedirhan");
+      await dbDelete("users", "usr-oktay");
+      await dbDelete("users", "usr-murat");
+      await dbDelete("users", "usr-admin");
     }
 
-    function dbPut(storeName, data) {
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction(storeName, "readwrite");
-        const req = tx.objectStore(storeName).put(data);
-        req.onsuccess = () => resolve(req.result);
-        req.onerror = (e) => reject(e);
-      });
-    }
+    function dbPut(s, d) { return new Promise((res, rej) => { const tx = db.transaction(s, "readwrite"); const r = tx.objectStore(s).put(d); r.onsuccess = () => res(r.result); r.onerror = (e) => rej(e); }); }
+    function dbGetAll(s) { return new Promise((res, rej) => { const tx = db.transaction(s, "readonly"); const r = tx.objectStore(s).getAll(); r.onsuccess = () => res(r.result || []); r.onerror = (e) => rej(e); }); }
+    function dbGet(s, k) { return new Promise((res, rej) => { const tx = db.transaction(s, "readonly"); const r = tx.objectStore(s).get(k); r.onsuccess = () => res(r.result); r.onerror = (e) => rej(e); }); }
+    function dbDelete(s, k) { return new Promise((res, rej) => { const tx = db.transaction(s, "readwrite"); const r = tx.objectStore(s).delete(k); r.onsuccess = () => res(r.result); r.onerror = (e) => rej(e); }); }
 
-    function dbGetAll(storeName) {
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction(storeName, "readonly");
-        const req = tx.objectStore(storeName).getAll();
-        req.onsuccess = () => resolve(req.result || []);
-        req.onerror = (e) => reject(e);
-      });
-    }
-
-    function dbGet(storeName, key) {
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction(storeName, "readonly");
-        const req = tx.objectStore(storeName).get(key);
-        req.onsuccess = () => resolve(req.result);
-        req.onerror = (e) => reject(e);
-      });
-    }
-
-    function dbDelete(storeName, key) {
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction(storeName, "readwrite");
-        const req = tx.objectStore(storeName).delete(key);
-        req.onsuccess = () => resolve(req.result);
-        req.onerror = (e) => reject(e);
-      });
-    }
-
-    /* ======================================================== */
-    /* AUTH                                                    */
-    /* ======================================================== */
+    /* ========== AUTH (CLOUD ONLY) ========== */
     async function handleLogin(e) {
       e.preventDefault();
       const usernameInput = document.getElementById("loginUsername").value.trim().toLowerCase();
       const passwordInput = document.getElementById("loginPassword").value.trim();
 
-      if (APP_STATE.googleSheetsUrl) {
-        await fetchFromGoogleSheets();
+      if (!usernameInput || !passwordInput) {
+        showToast("Kullanıcı adı ve şifre girin.", "warning");
+        return;
+      }
+
+      if (!APP_STATE.googleSheetsUrl) {
+        showToast("Lütfen önce bulut bağlantısını yapılandırın.", "warning");
+        openSettingsModal();
+        return;
+      }
+
+      showToast("Doğrulanıyor...", "info");
+      const cloudData = await fetchFromGoogleSheets();
+
+      if (!cloudData || !cloudData.success) {
+        showToast("Bulut bağlantısı kurulamadı. İnternetinizi kontrol edin.", "danger");
+        return;
       }
 
       const users = await dbGetAll("users");
+
+      if (users.length === 0) {
+        showToast("Sistemde kullanıcı bulunamadı. Google Sheets'te Users_Master sayfasına kullanıcı ekleyin.", "warning");
+        openSettingsModal();
+        return;
+      }
+
       const user = users.find(u => u.username.toLowerCase() === usernameInput);
 
       if (!user || user.password_pin !== passwordInput) {
@@ -1414,6 +792,7 @@
       APP_STATE.currentUser = user;
       sessionStorage.setItem("danismaz_user", JSON.stringify(user));
       showToast(`Hoş geldiniz, ${user.full_name}!`, "success");
+      await syncPendingLogs();
       setupAppUI();
     }
 
@@ -1432,15 +811,11 @@
         try {
           APP_STATE.currentUser = JSON.parse(stored);
           setupAppUI();
-        } catch(e) {
-          sessionStorage.removeItem("danismaz_user");
-        }
+        } catch(e) { sessionStorage.removeItem("danismaz_user"); }
       }
     }
 
-    /* ======================================================== */
-    /* UI SETUP                                                */
-    /* ======================================================== */
+    /* ========== UI SETUP ========== */
     async function setupAppUI() {
       const u = APP_STATE.currentUser;
       if (!u) return;
@@ -1454,16 +829,9 @@
       const isSuper = (u.username === "admin" || u.role === "SUPER_ADMIN");
       const isAdmin = (isSuper || u.role === "ADMIN");
 
-      if (isSuper) {
-        roleBadge.textContent = "SUPER ADMIN";
-        roleBadge.className = "role-badge role-super";
-      } else if (isAdmin) {
-        roleBadge.textContent = "YÖNETİCİ";
-        roleBadge.className = "role-badge role-admin";
-      } else {
-        roleBadge.textContent = "ÇALIŞAN";
-        roleBadge.className = "role-badge role-emp";
-      }
+      if (isSuper) { roleBadge.textContent = "SUPER ADMIN"; roleBadge.className = "role-badge role-super"; }
+      else if (isAdmin) { roleBadge.textContent = "YÖNETİCİ"; roleBadge.className = "role-badge role-admin"; }
+      else { roleBadge.textContent = "ÇALIŞAN"; roleBadge.className = "role-badge role-emp"; }
 
       updateCloudBadges();
 
@@ -1471,67 +839,50 @@
         el.style.display = isAdmin ? "inline-block" : "none";
       });
 
+      // Test/debug buttons only for SUPER_ADMIN
+      const dbg = document.getElementById("debugButtons");
+      if (dbg) dbg.style.display = isSuper ? "flex" : "none";
+
       const thActions = document.getElementById("thAdminActions");
-      if (thActions) {
-        thActions.style.display = isSuper ? "table-cell" : "none";
-      }
+      if (thActions) thActions.style.display = isSuper ? "table-cell" : "none";
 
       populateMonthDropdowns();
       startClock();
       fetchLiveGPS();
       await updatePunchStateUI();
       await renderMonthlyChart();
-
       switchTab("tabPunch");
     }
 
     function switchTab(tabId) {
       document.querySelectorAll(".subnav-tab").forEach(t => t.classList.remove("active"));
       document.querySelectorAll(".view-section").forEach(s => s.classList.remove("active"));
+      const tb = document.querySelector(`.subnav-tab[data-tab="${tabId}"]`);
+      if (tb) tb.classList.add("active");
+      const ts = document.getElementById(tabId);
+      if (ts) ts.classList.add("active");
 
-      const targetTabBtn = document.querySelector(`.subnav-tab[data-tab="${tabId}"]`);
-      if (targetTabBtn) targetTabBtn.classList.add("active");
-
-      const targetSection = document.getElementById(tabId);
-      if (targetSection) targetSection.classList.add("active");
-
-      if (tabId === "tabPunch") {
-        updatePunchStateUI();
-        renderMonthlyChart();
-      } else if (tabId === "tabMyLogs") {
-        renderMyLogsTable();
-      } else if (tabId === "tabAdminUsers") {
-        renderAdminUsersTable();
-      } else if (tabId === "tabAdminLogs") {
-        renderAdminLogsTable();
-      }
+      if (tabId === "tabPunch") { updatePunchStateUI(); renderMonthlyChart(); }
+      else if (tabId === "tabMyLogs") renderMyLogsTable();
+      else if (tabId === "tabAdminUsers") renderAdminUsersTable();
+      else if (tabId === "tabAdminLogs") { populateAdminFilterUser(); renderAdminLogsTable(); }
     }
 
     function startClock() {
       setInterval(() => {
         const now = new Date();
-        const timeEl = document.getElementById("liveTimeClock");
-        if (timeEl) {
-          timeEl.textContent = now.toLocaleDateString("tr-TR", { weekday: 'short', day: 'numeric', month: 'short' }) + " " + now.toLocaleTimeString("tr-TR");
-        }
+        const el = document.getElementById("liveTimeClock");
+        if (el) el.textContent = now.toLocaleDateString("tr-TR", { weekday:'short', day:'numeric', month:'short' }) + " " + now.toLocaleTimeString("tr-TR");
       }, 1000);
     }
 
-    /* ======================================================== */
-    /* GPS & GEOFENCE                                          */
-    /* ======================================================== */
+    /* ========== GPS ========== */
     function calculateDistanceMeters(lat1, lon1, lat2, lon2) {
       const R = 6371e3;
-      const φ1 = lat1 * Math.PI / 180;
-      const φ2 = lat2 * Math.PI / 180;
-      const Δφ = (lat2 - lat1) * Math.PI / 180;
-      const Δλ = (lon2 - lon1) * Math.PI / 180;
-
-      const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-                Math.cos(φ1) * Math.cos(φ2) *
-                Math.sin(Δλ/2) * Math.sin(Δλ/2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      return Math.round(R * c * 10) / 10;
+      const φ1 = lat1 * Math.PI/180, φ2 = lat2 * Math.PI/180;
+      const Δφ = (lat2-lat1) * Math.PI/180, Δλ = (lon2-lon1) * Math.PI/180;
+      const a = Math.sin(Δφ/2)**2 + Math.cos(φ1)*Math.cos(φ2)*Math.sin(Δλ/2)**2;
+      return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)) * 10) / 10;
     }
 
     function fetchLiveGPS() {
@@ -1547,21 +898,15 @@
 
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          APP_STATE.deviceCoords = {
-            latitude: pos.coords.latitude,
-            longitude: pos.coords.longitude,
-            accuracy: pos.coords.accuracy
-          };
+          APP_STATE.deviceCoords = { latitude: pos.coords.latitude, longitude: pos.coords.longitude, accuracy: pos.coords.accuracy };
           const disp = document.getElementById("coordsDisplay");
-          if (disp) {
-            disp.textContent = `Koordinat: ${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)} (±${Math.round(pos.coords.accuracy)}m)`;
-          }
+          if (disp) disp.textContent = `Koordinat: ${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)} (±${Math.round(pos.coords.accuracy)}m)`;
           evaluateGeofence();
         },
         (err) => {
           console.warn("GPS error:", err);
           banner.className = "geofence-status-banner status-outside";
-          banner.innerHTML = `<span>⚠️ Konum alınamadı. "Test İçi" butonuyla deneyin.</span>`;
+          banner.innerHTML = `<span>⚠️ Konum alınamadı. İzin verin veya "GPS" butonunu kullanın.</span>`;
           document.getElementById("coordsDisplay").textContent = "Koordinat: Alınamadı";
           APP_STATE.isInsideGeofence = false;
           updatePunchButtonsState();
@@ -1572,15 +917,9 @@
       if (navigator.geolocation && !APP_STATE.watchId) {
         APP_STATE.watchId = navigator.geolocation.watchPosition(
           (pos) => {
-            APP_STATE.deviceCoords = {
-              latitude: pos.coords.latitude,
-              longitude: pos.coords.longitude,
-              accuracy: pos.coords.accuracy
-            };
+            APP_STATE.deviceCoords = { latitude: pos.coords.latitude, longitude: pos.coords.longitude, accuracy: pos.coords.accuracy };
             const disp = document.getElementById("coordsDisplay");
-            if (disp) {
-              disp.textContent = `Koordinat: ${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)} (±${Math.round(pos.coords.accuracy)}m)`;
-            }
+            if (disp) disp.textContent = `Koordinat: ${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)} (±${Math.round(pos.coords.accuracy)}m)`;
             evaluateGeofence();
           },
           (err) => console.warn("Watch GPS:", err),
@@ -1589,91 +928,59 @@
       }
     }
 
-    async function simulateInsideGeofence() {
+    function simulateInsideGeofence() {
       const loc = APP_STATE.locations[0];
-      APP_STATE.deviceCoords = {
-        latitude: loc.latitude + 0.00010,
-        longitude: loc.longitude + 0.00010,
-        accuracy: 5
-      };
-      document.getElementById("coordsDisplay").textContent =
-        `Koordinat (Simüle): ${APP_STATE.deviceCoords.latitude.toFixed(5)}, ${APP_STATE.deviceCoords.longitude.toFixed(5)}`;
-      showToast("Kapsama alanına (250m) giriş yapıldı.", "success");
+      APP_STATE.deviceCoords = { latitude: loc.latitude + 0.00010, longitude: loc.longitude + 0.00010, accuracy: 5 };
+      document.getElementById("coordsDisplay").textContent = `Koordinat (Simüle): ${APP_STATE.deviceCoords.latitude.toFixed(5)}, ${APP_STATE.deviceCoords.longitude.toFixed(5)}`;
+      showToast("Kapsama alanına girildi (250m).", "success");
       evaluateGeofence();
     }
 
-    async function simulate5KmAway() {
+    function simulate5KmAway() {
       const loc = APP_STATE.locations[0];
-      APP_STATE.deviceCoords = {
-        latitude: loc.latitude + 0.050,
-        longitude: loc.longitude + 0.035,
-        accuracy: 10
-      };
-      document.getElementById("coordsDisplay").textContent =
-        `Koordinat (5.8 km uzakta): ${APP_STATE.deviceCoords.latitude.toFixed(5)}, ${APP_STATE.deviceCoords.longitude.toFixed(5)}`;
-      showToast("5 km uzağa gidildi simülasyonu.", "warning");
+      APP_STATE.deviceCoords = { latitude: loc.latitude + 0.050, longitude: loc.longitude + 0.035, accuracy: 10 };
+      document.getElementById("coordsDisplay").textContent = `Koordinat (5.8 km uzakta): ${APP_STATE.deviceCoords.latitude.toFixed(5)}, ${APP_STATE.deviceCoords.longitude.toFixed(5)}`;
+      showToast("5 km uzağa gidildi.", "warning");
       evaluateGeofence();
     }
 
     async function triggerAutoCheckout(distMeters, loc) {
       if (APP_STATE.isAutoCheckingOut) return;
       APP_STATE.isAutoCheckingOut = true;
-
       try {
         const u = APP_STATE.currentUser;
         if (!u || APP_STATE.allowedTransaction !== "ÇIKIŞ") return;
-
         const now = new Date();
         const kmStr = (distMeters / 1000).toFixed(1);
         const logEntry = {
           log_id: "auto-out-" + Date.now() + "-" + Math.random().toString(36).substring(2, 6),
-          username: u.username,
-          full_name: u.full_name,
-          transaction_type: "ÇIKIŞ",
-          log_date: now.toISOString().split("T")[0],
-          log_timestamp: now.toISOString(),
-          latitude: APP_STATE.deviceCoords ? APP_STATE.deviceCoords.latitude : 0,
-          longitude: APP_STATE.deviceCoords ? APP_STATE.deviceCoords.longitude : 0,
-          target_location_id: loc.location_id,
-          target_location_name: loc.name,
-          distance_meters: Math.round(distMeters),
-          geofence_status: "OUT_OF_BOUNDS",
-          audit_notes: `OTOMATİK ÇIKIŞ: Fabrikadan 5 km uzaklaşıldı (${kmStr} km)`
+          username: u.username, full_name: u.full_name, transaction_type: "ÇIKIŞ",
+          log_date: now.toISOString().split("T")[0], log_timestamp: now.toISOString(),
+          latitude: APP_STATE.deviceCoords?.latitude || 0, longitude: APP_STATE.deviceCoords?.longitude || 0,
+          target_location_id: loc.location_id, target_location_name: loc.name,
+          distance_meters: Math.round(distMeters), geofence_status: "OUT_OF_BOUNDS",
+          audit_notes: `OTOMATİK ÇIKIŞ: 5km (${kmStr} km) uzaklaşıldı`,
+          sync_pending: !!APP_STATE.googleSheetsUrl
         };
-
         await dbPut("attendance_logs", logEntry);
-
         if (APP_STATE.googleSheetsUrl) {
-          postToGoogleSheets("punch", logEntry);
+          const ok = await postToGoogleSheets("punch", logEntry);
+          if (ok) { logEntry.sync_pending = false; await dbPut("attendance_logs", logEntry); }
         }
-
-        showToast(`🚨 5 km (${kmStr} km) uzaklaşıldığı için otomatik ÇIKIŞ yapıldı!`, "danger");
+        showToast(`🚨 5km (${kmStr} km) uzaklaşıldı — otomatik ÇIKIŞ yapıldı!`, "danger");
         await updatePunchStateUI();
         await renderMonthlyChart();
-      } catch (err) {
-        console.error("Auto checkout error:", err);
-      } finally {
-        setTimeout(() => { APP_STATE.isAutoCheckingOut = false; }, 15000);
-      }
+      } catch (err) { console.error("Auto checkout:", err); }
+      finally { setTimeout(() => { APP_STATE.isAutoCheckingOut = false; }, 15000); }
     }
 
     async function evaluateGeofence() {
       const banner = document.getElementById("geofenceBanner");
       const distDisplay = document.getElementById("distanceDisplay");
       const loc = APP_STATE.locations[0];
+      if (!APP_STATE.deviceCoords) { distDisplay.textContent = "Mesafe: Bekleniyor..."; return; }
 
-      if (!APP_STATE.deviceCoords) {
-        distDisplay.textContent = "Mesafe: Bekleniyor...";
-        return;
-      }
-
-      const dist = calculateDistanceMeters(
-        APP_STATE.deviceCoords.latitude,
-        APP_STATE.deviceCoords.longitude,
-        loc.latitude,
-        loc.longitude
-      );
-
+      const dist = calculateDistanceMeters(APP_STATE.deviceCoords.latitude, APP_STATE.deviceCoords.longitude, loc.latitude, loc.longitude);
       APP_STATE.distanceMeters = dist;
       distDisplay.textContent = `Mesafe: ${dist < 1000 ? dist + 'm' : (dist/1000).toFixed(2) + ' km'} (İzin: ${loc.allowed_radius_meters}m)`;
 
@@ -1684,7 +991,6 @@
       } else {
         APP_STATE.isInsideGeofence = false;
         banner.className = "geofence-status-banner status-outside";
-
         if (dist >= 5000 && APP_STATE.allowedTransaction === "ÇIKIŞ") {
           banner.innerHTML = `<span>🚨 <strong>5 KM SINIRI AŞILDI</strong> — Otomatik ÇIKIŞ yapılıyor.</span>`;
           triggerAutoCheckout(dist, loc);
@@ -1692,59 +998,45 @@
           banner.innerHTML = `<span>⛔ <strong>KAPSAMA ALANI DIŞINDA</strong> — ${dist < 1000 ? dist + 'm' : (dist/1000).toFixed(1) + ' km'} uzaktasınız.</span>`;
         }
       }
-
       updatePunchButtonsState();
     }
 
-    /* ======================================================== */
-    /* PUNCH STATE                                             */
-    /* ======================================================== */
+    /* ========== PUNCH STATE ========== */
     async function updatePunchStateUI() {
       const u = APP_STATE.currentUser;
       if (!u) return;
-
       const logs = await dbGetAll("attendance_logs");
-      const userLogs = logs.filter(l => l.username === u.username);
-      userLogs.sort((a, b) => new Date(b.log_timestamp) - new Date(a.log_timestamp));
-
-      const lastLog = userLogs[0];
+      const userLogs = logs.filter(l => l.username === u.username).sort((a,b) => new Date(b.log_timestamp) - new Date(a.log_timestamp));
+      const last = userLogs[0];
       const stateText = document.getElementById("punchStateText");
       const lastBadge = document.getElementById("lastPunchBadge");
 
-      if (!lastLog || lastLog.transaction_type === "ÇIKIŞ") {
+      if (!last || last.transaction_type === "ÇIKIŞ") {
         stateText.textContent = "Durum: VARDİYA DIŞINDA";
-        lastBadge.textContent = lastLog ? `Son: ÇIKIŞ (${formatTime(lastLog.log_timestamp)})` : "İşlem Yok";
+        lastBadge.textContent = last ? `Son: ÇIKIŞ (${formatTime(last.log_timestamp)})` : "İşlem Yok";
         lastBadge.className = "badge badge-out";
         APP_STATE.allowedTransaction = "GİRİŞ";
       } else {
-        stateText.textContent = `Durum: VARDİYADA (Giriş: ${formatTime(lastLog.log_timestamp)})`;
-        lastBadge.textContent = `Son: GİRİŞ (${formatTime(lastLog.log_timestamp)})`;
+        stateText.textContent = `Durum: VARDİYADA (Giriş: ${formatTime(last.log_timestamp)})`;
+        lastBadge.textContent = `Son: GİRİŞ (${formatTime(last.log_timestamp)})`;
         lastBadge.className = "badge badge-in";
         APP_STATE.allowedTransaction = "ÇIKIŞ";
       }
-
       updatePunchButtonsState();
     }
 
     function updatePunchButtonsState() {
-      const btnIn = document.getElementById("btnPunchIn");
-      const btnOut = document.getElementById("btnPunchOut");
+      const inBtn = document.getElementById("btnPunchIn");
+      const outBtn = document.getElementById("btnPunchOut");
       const allowed = APP_STATE.allowedTransaction;
       const inside = APP_STATE.isInsideGeofence;
-
-      btnIn.disabled = !(allowed === "GİRİŞ" && inside);
-      btnOut.disabled = !(allowed === "ÇIKIŞ" && inside);
+      inBtn.disabled = !(allowed === "GİRİŞ" && inside);
+      outBtn.disabled = !(allowed === "ÇIKIŞ" && inside);
     }
 
     async function submitPunch(type) {
-      if (!APP_STATE.isInsideGeofence) {
-        showToast("Kapsama alanı (250m) dışındasınız!", "danger");
-        return;
-      }
-      if (type !== APP_STATE.allowedTransaction) {
-        showToast(`Ardışık ${type} kaydı oluşturulamaz!`, "warning");
-        return;
-      }
+      if (!APP_STATE.isInsideGeofence) { showToast("Kapsama alanı (250m) dışındasınız!", "danger"); return; }
+      if (type !== APP_STATE.allowedTransaction) { showToast(`Ardışık ${type} kaydı oluşturulamaz!`, "warning"); return; }
 
       const u = APP_STATE.currentUser;
       const loc = APP_STATE.locations[0];
@@ -1752,24 +1044,20 @@
 
       const logEntry = {
         log_id: "log-" + Date.now() + "-" + Math.random().toString(36).substring(2, 6),
-        username: u.username,
-        full_name: u.full_name,
-        transaction_type: type,
-        log_date: now.toISOString().split("T")[0],
-        log_timestamp: now.toISOString(),
-        latitude: APP_STATE.deviceCoords.latitude,
-        longitude: APP_STATE.deviceCoords.longitude,
-        target_location_id: loc.location_id,
-        target_location_name: loc.name,
-        distance_meters: APP_STATE.distanceMeters,
-        geofence_status: "VERIFIED_INSIDE",
-        audit_notes: "Mobil web arayüzünden kaydedildi"
+        username: u.username, full_name: u.full_name, transaction_type: type,
+        log_date: now.toISOString().split("T")[0], log_timestamp: now.toISOString(),
+        latitude: APP_STATE.deviceCoords.latitude, longitude: APP_STATE.deviceCoords.longitude,
+        target_location_id: loc.location_id, target_location_name: loc.name,
+        distance_meters: APP_STATE.distanceMeters, geofence_status: "VERIFIED_INSIDE",
+        audit_notes: "Mobil web arayüzünden kaydedildi",
+        sync_pending: !!APP_STATE.googleSheetsUrl
       };
 
       await dbPut("attendance_logs", logEntry);
 
       if (APP_STATE.googleSheetsUrl) {
-        postToGoogleSheets("punch", logEntry);
+        const ok = await postToGoogleSheets("punch", logEntry);
+        if (ok) { logEntry.sync_pending = false; await dbPut("attendance_logs", logEntry); }
       }
 
       showToast(`${type} kaydı oluşturuldu! (${formatTime(now.toISOString())})`, "success");
@@ -1777,314 +1065,175 @@
       await renderMonthlyChart();
     }
 
-    /* ======================================================== */
-    /* SHIFT PAIRING & OVERTIME                                */
-    /* ======================================================== */
+    /* ========== SHIFT PAIRING ========== */
     function computePairedShifts(logs) {
-      const sorted = [...logs].sort((a, b) => new Date(a.log_timestamp) - new Date(b.log_timestamp));
+      const sorted = [...logs].sort((a,b) => new Date(a.log_timestamp) - new Date(b.log_timestamp));
       const shifts = [];
-      const openShiftsByUser = {};
+      const openByUser = {};
 
       for (const log of sorted) {
         const u = log.username;
-
         if (log.transaction_type === "GİRİŞ") {
-          if (openShiftsByUser[u]) {
-            shifts.push({
-              log_id: openShiftsByUser[u].log_id,
-              username: u,
-              full_name: openShiftsByUser[u].full_name,
-              log_date: openShiftsByUser[u].log_date,
-              in_time: openShiftsByUser[u].log_timestamp,
-              out_time: null,
-              total_hours: 0,
-              regular_hours: 0,
-              overtime_hours: 0,
-              status: "EKSİK KAYIT",
-              location: openShiftsByUser[u].target_location_name
-            });
+          if (openByUser[u]) {
+            shifts.push({ log_id: openByUser[u].log_id, username: u, full_name: openByUser[u].full_name, log_date: openByUser[u].log_date, in_time: openByUser[u].log_timestamp, out_time: null, total_hours: 0, regular_hours: 0, overtime_hours: 0, status: "EKSİK KAYIT", location: openByUser[u].target_location_name });
           }
-          openShiftsByUser[u] = log;
+          openByUser[u] = log;
         } else if (log.transaction_type === "ÇIKIŞ") {
-          if (openShiftsByUser[u]) {
-            const inLog = openShiftsByUser[u];
-            const tIn = new Date(inLog.log_timestamp);
-            const tOut = new Date(log.log_timestamp);
-
-            const diffMs = Math.max(0, tOut - tIn);
-            const totalHours = Math.round((diffMs / (1000 * 60 * 60)) * 100) / 100;
-            const regularHours = Math.round(Math.min(totalHours, 8.00) * 100) / 100;
-            const overtimeHours = Math.round(Math.max(0, totalHours - 8.00) * 100) / 100;
-
-            shifts.push({
-              log_id: inLog.log_id,
-              out_log_id: log.log_id,
-              username: u,
-              full_name: inLog.full_name,
-              log_date: inLog.log_date,
-              in_time: inLog.log_timestamp,
-              out_time: log.log_timestamp,
-              total_hours: totalHours,
-              regular_hours: regularHours,
-              overtime_hours: overtimeHours,
-              status: "TAMAMLANDI",
-              location: inLog.target_location_name
-            });
-
-            delete openShiftsByUser[u];
+          if (openByUser[u]) {
+            const inLog = openByUser[u];
+            const diffMs = Math.max(0, new Date(log.log_timestamp) - new Date(inLog.log_timestamp));
+            const total = Math.round((diffMs / 3600000) * 100) / 100;
+            const reg = Math.round(Math.min(total, 8) * 100) / 100;
+            const ot = Math.round(Math.max(0, total - 8) * 100) / 100;
+            shifts.push({ log_id: inLog.log_id, out_log_id: log.log_id, username: u, full_name: inLog.full_name, log_date: inLog.log_date, in_time: inLog.log_timestamp, out_time: log.log_timestamp, total_hours: total, regular_hours: reg, overtime_hours: ot, status: "TAMAMLANDI", location: inLog.target_location_name });
+            delete openByUser[u];
           } else {
-            shifts.push({
-              log_id: log.log_id,
-              username: u,
-              full_name: log.full_name,
-              log_date: log.log_date,
-              in_time: null,
-              out_time: log.log_timestamp,
-              total_hours: 0,
-              regular_hours: 0,
-              overtime_hours: 0,
-              status: "GİRİŞSİZ ÇIKIŞ",
-              location: log.target_location_name
-            });
+            shifts.push({ log_id: log.log_id, username: u, full_name: log.full_name, log_date: log.log_date, in_time: null, out_time: log.log_timestamp, total_hours: 0, regular_hours: 0, overtime_hours: 0, status: "GİRİŞSİZ ÇIKIŞ", location: log.target_location_name });
           }
         }
       }
-
-      for (const u in openShiftsByUser) {
-        const inLog = openShiftsByUser[u];
-        shifts.push({
-          log_id: inLog.log_id,
-          username: u,
-          full_name: inLog.full_name,
-          log_date: inLog.log_date,
-          in_time: inLog.log_timestamp,
-          out_time: null,
-          total_hours: 0,
-          regular_hours: 0,
-          overtime_hours: 0,
-          status: "AÇIK VARDİYA",
-          location: inLog.target_location_name
-        });
+      for (const u in openByUser) {
+        const inLog = openByUser[u];
+        shifts.push({ log_id: inLog.log_id, username: u, full_name: inLog.full_name, log_date: inLog.log_date, in_time: inLog.log_timestamp, out_time: null, total_hours: 0, regular_hours: 0, overtime_hours: 0, status: "AÇIK VARDİYA", location: inLog.target_location_name });
       }
-
       return shifts;
     }
 
-    /* ======================================================== */
-    /* MONTHLY CHART                                           */
-    /* ======================================================== */
+    /* ========== MONTHLY CHART ========== */
     async function renderMonthlyChart() {
       const u = APP_STATE.currentUser;
       if (!u) return;
-
       const monthVal = document.getElementById("chartMonthSelect").value || getCurrentYearMonth();
       const [year, month] = monthVal.split("-").map(Number);
-
       const logs = await dbGetAll("attendance_logs");
       const userLogs = logs.filter(l => l.username === u.username);
-      const pairedShifts = computePairedShifts(userLogs);
-
-      const monthShifts = pairedShifts.filter(s => {
-        const d = new Date(s.log_date);
-        return d.getFullYear() === year && (d.getMonth() + 1) === month;
-      });
+      const shifts = computePairedShifts(userLogs);
+      const monthShifts = shifts.filter(s => { const d = new Date(s.log_date); return d.getFullYear() === year && (d.getMonth()+1) === month; });
 
       const daysInMonth = new Date(year, month, 0).getDate();
-      const dayLabels = [];
-      const regularData = [];
-      const overtimeData = [];
-
-      let totalDaysWorked = 0;
-      let sumRegularHours = 0;
-      let sumOvertimeHours = 0;
+      const dayLabels = [], regularData = [], overtimeData = [];
+      let totalDays = 0, sumReg = 0, sumOt = 0;
 
       for (let day = 1; day <= daysInMonth; day++) {
-        const dayStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const dayStr = `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
         dayLabels.push(`${day}`);
-
-        const dayShift = monthShifts.find(s => s.log_date === dayStr);
-        if (dayShift && dayShift.total_hours > 0) {
-          totalDaysWorked++;
-          sumRegularHours += dayShift.regular_hours;
-          sumOvertimeHours += dayShift.overtime_hours;
-          regularData.push(dayShift.regular_hours);
-          overtimeData.push(dayShift.overtime_hours);
-        } else {
-          regularData.push(0);
-          overtimeData.push(0);
-        }
+        const s = monthShifts.find(x => x.log_date === dayStr);
+        if (s && s.total_hours > 0) {
+          totalDays++; sumReg += s.regular_hours; sumOt += s.overtime_hours;
+          regularData.push(s.regular_hours); overtimeData.push(s.overtime_hours);
+        } else { regularData.push(0); overtimeData.push(0); }
       }
 
-      document.getElementById("metricDays").textContent = totalDaysWorked;
-      document.getElementById("metricRegularHours").textContent = sumRegularHours.toFixed(1) + "h";
-      document.getElementById("metricOvertimeHours").textContent = sumOvertimeHours.toFixed(1) + "h";
-      document.getElementById("metricTotalHours").textContent = (sumRegularHours + sumOvertimeHours).toFixed(1) + "h";
+      document.getElementById("metricDays").textContent = totalDays;
+      document.getElementById("metricRegularHours").textContent = sumReg.toFixed(1) + "h";
+      document.getElementById("metricOvertimeHours").textContent = sumOt.toFixed(1) + "h";
+      document.getElementById("metricTotalHours").textContent = (sumReg + sumOt).toFixed(1) + "h";
 
       const ctx = document.getElementById("monthlyAttendanceChart").getContext("2d");
-
-      if (APP_STATE.chartInstance) {
-        APP_STATE.chartInstance.destroy();
-      }
-
+      if (APP_STATE.chartInstance) APP_STATE.chartInstance.destroy();
       APP_STATE.chartInstance = new Chart(ctx, {
         type: 'bar',
-        data: {
-          labels: dayLabels,
-          datasets: [
-            {
-              label: 'Normal Mesai',
-              data: regularData,
-              backgroundColor: '#2563eb',
-              borderRadius: 3,
-              stack: 'ShiftStack'
-            },
-            {
-              label: 'Ek Mesai',
-              data: overtimeData,
-              backgroundColor: '#f97316',
-              borderRadius: 3,
-              stack: 'ShiftStack'
-            }
-          ]
-        },
+        data: { labels: dayLabels, datasets: [
+          { label: 'Normal Mesai', data: regularData, backgroundColor: '#2563eb', borderRadius: 3, stack: 'S' },
+          { label: 'Ek Mesai', data: overtimeData, backgroundColor: '#f97316', borderRadius: 3, stack: 'S' }
+        ]},
         options: {
-          responsive: true,
-          maintainAspectRatio: false,
+          responsive: true, maintainAspectRatio: false,
           plugins: {
-            tooltip: {
-              callbacks: {
-                footer: (items) => {
-                  let total = 0;
-                  items.forEach(i => total += i.parsed.y);
-                  return `Günlük Toplam: ${total.toFixed(2)} Saat`;
-                }
-              }
-            },
-            legend: {
-              position: 'top',
-              labels: { font: { family: 'Inter', size: 11, weight: 600 }, boxWidth: 12 }
-            }
+            tooltip: { callbacks: { footer: (items) => { let t = 0; items.forEach(i => t += i.parsed.y); return `Toplam: ${t.toFixed(2)} Saat`; } } },
+            legend: { position: 'top', labels: { font: { family: 'Inter', size: 11, weight: 600 }, boxWidth: 12 } }
           },
           scales: {
-            x: {
-              grid: { display: false },
-              ticks: { font: { size: 10 }, maxRotation: 0 }
-            },
-            y: {
-              beginAtZero: true,
-              suggestedMax: 10,
-              ticks: { stepSize: 2, font: { size: 10 } }
-            }
+            x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 0 } },
+            y: { beginAtZero: true, suggestedMax: 10, ticks: { stepSize: 2, font: { size: 10 } } }
           }
         }
       });
     }
 
-    /* ======================================================== */
-    /* MY LOGS TABLE                                           */
-    /* ======================================================== */
+    /* ========== MY LOGS ========== */
     async function renderMyLogsTable() {
       const u = APP_STATE.currentUser;
       if (!u) return;
-
       const logs = await dbGetAll("attendance_logs");
-      const userLogs = logs.filter(l => l.username === u.username);
-      const shifts = computePairedShifts(userLogs);
-      shifts.sort((a, b) => new Date(b.log_date) - new Date(a.log_date));
-
+      const shifts = computePairedShifts(logs.filter(l => l.username === u.username)).sort((a,b) => new Date(b.log_date) - new Date(a.log_date));
       const tbody = document.getElementById("myLogsTableBody");
       tbody.innerHTML = "";
-
       if (shifts.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--slate-400); padding: 1.5rem; font-size: 0.8rem;">Henüz kayıt bulunmuyor.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--slate-400);padding:1.5rem;font-size:.8rem;">Henüz kayıt bulunmuyor.</td></tr>`;
         return;
       }
-
       shifts.forEach(s => {
         const tr = document.createElement("tr");
-        const statusBadge = (s.status === "TAMAMLANDI")
-          ? `<span class="badge badge-done">TAMAMLANDI</span>`
-          : `<span class="badge badge-open">${s.status}</span>`;
-
+        const badge = (s.status === "TAMAMLANDI") ? `<span class="badge badge-done">TAMAMLANDI</span>` : `<span class="badge badge-open">${s.status}</span>`;
         tr.innerHTML = `
           <td><strong>${s.log_date}</strong></td>
           <td>${s.in_time ? formatTime(s.in_time) : '--:--'}</td>
           <td>${s.out_time ? formatTime(s.out_time) : '--:--'}</td>
           <td><strong>${s.total_hours.toFixed(2)}h</strong></td>
-          <td style="color: var(--primary); font-weight: 600;">${s.regular_hours.toFixed(2)}h</td>
-          <td style="color: #f97316; font-weight: 700;">${s.overtime_hours > 0 ? '+' + s.overtime_hours.toFixed(2) + 'h' : '0.00h'}</td>
-          <td>${statusBadge}</td>
-          <td>${s.location || '-'}</td>
-        `;
+          <td style="color:var(--primary);font-weight:600;">${s.regular_hours.toFixed(2)}h</td>
+          <td style="color:#f97316;font-weight:700;">${s.overtime_hours > 0 ? '+' + s.overtime_hours.toFixed(2) + 'h' : '0.00h'}</td>
+          <td>${badge}</td>
+          <td>${s.location || '-'}</td>`;
         tbody.appendChild(tr);
       });
     }
 
-    /* ======================================================== */
-    /* ADMIN: USER MANAGEMENT (ADMIN HIDDEN FROM OTHERS)       */
-    /* ======================================================== */
+    /* ========== ADMIN USERS ========== */
+    async function populateAdminFilterUser() {
+      const curr = APP_STATE.currentUser;
+      const allUsers = await dbGetAll("users");
+      const viewerIsSuper = curr && (curr.username === "admin" || curr.role === "SUPER_ADMIN");
+      let users = allUsers;
+      if (!viewerIsSuper) users = users.filter(u => u.username !== "admin" && u.role !== "SUPER_ADMIN");
+
+      const filterUser = document.getElementById("adminFilterUser");
+      if (!filterUser) return;
+      const current = filterUser.value;
+      filterUser.innerHTML = '<option value="ALL">Tüm Personel</option>';
+      users.sort((a,b) => a.full_name.localeCompare(b.full_name, 'tr')).forEach(u => {
+        const o = document.createElement("option"); o.value = u.username; o.textContent = u.full_name; filterUser.appendChild(o);
+      });
+      if ([...filterUser.options].some(o => o.value === current)) filterUser.value = current;
+    }
+
     async function renderAdminUsersTable() {
       const curr = APP_STATE.currentUser;
       const allUsers = await dbGetAll("users");
-
-      // ADMIN HIDING: only admin (or another SUPER_ADMIN) can see admin
       const viewerIsSuper = curr && (curr.username === "admin" || curr.role === "SUPER_ADMIN");
-      let displayUsers = allUsers;
-      if (!viewerIsSuper) {
-        displayUsers = allUsers.filter(u => u.username !== "admin" && u.role !== "SUPER_ADMIN");
-      }
+      let users = allUsers;
+      if (!viewerIsSuper) users = users.filter(u => u.username !== "admin" && u.role !== "SUPER_ADMIN");
 
-      // Sort: SUPER_ADMIN first, then ADMIN, then EMPLOYEE, then by name
-      const roleOrder = { "SUPER_ADMIN": 0, "ADMIN": 1, "EMPLOYEE": 2 };
-      displayUsers.sort((a, b) => {
-        const ra = roleOrder[a.role] ?? 3;
-        const rb = roleOrder[b.role] ?? 3;
+      const order = { "SUPER_ADMIN": 0, "ADMIN": 1, "EMPLOYEE": 2 };
+      users.sort((a,b) => {
+        const ra = order[a.role] ?? 3, rb = order[b.role] ?? 3;
         if (ra !== rb) return ra - rb;
         return a.full_name.localeCompare(b.full_name, 'tr');
       });
 
       const tbody = document.getElementById("adminUsersTableBody");
       tbody.innerHTML = "";
-
-      displayUsers.forEach(u => {
-        const tr = document.createElement("tr");
+      users.forEach(u => {
         const isSuper = (u.username === "admin" || u.role === "SUPER_ADMIN");
-        const roleLabel = isSuper
-          ? `<span class="role-badge role-super">SUPER ADMIN</span>`
+        const roleLabel = isSuper ? `<span class="role-badge role-super">SUPER ADMIN</span>`
           : (u.role === "ADMIN" ? `<span class="role-badge role-admin">YÖNETİCİ</span>` : `<span class="role-badge role-emp">ÇALIŞAN</span>`);
-
-        const activeLabel = u.is_active
-          ? `<span class="badge badge-in">Aktif</span>`
-          : `<span class="badge badge-out">Pasif</span>`;
-
+        const activeLabel = u.is_active ? `<span class="badge badge-in">Aktif</span>` : `<span class="badge badge-out">Pasif</span>`;
+        const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td><code style="font-size:0.72rem;">${u.employee_code || '-'}</code></td>
+          <td><code style="font-size:.72rem;">${u.employee_code || '-'}</code></td>
           <td><strong>${u.full_name}</strong></td>
-          <td><code style="font-size:0.72rem;">${u.username}</code></td>
-          <td><span style="font-family: monospace; font-weight: 700; background: var(--slate-100); padding: 0.12rem 0.35rem; border-radius: 4px; font-size: 0.72rem;">${u.password_pin}</span></td>
+          <td><code style="font-size:.72rem;">${u.username}</code></td>
+          <td><span style="font-family:monospace;font-weight:700;background:var(--slate-100);padding:.12rem .35rem;border-radius:4px;font-size:.72rem;">${u.password_pin}</span></td>
           <td>${u.department || '-'}</td>
           <td>${roleLabel}</td>
           <td>${activeLabel}</td>
           <td>
             <button class="btn btn-secondary btn-sm" onclick="editUser('${u.user_id}')">Düzenle</button>
             ${!isSuper ? `<button class="btn btn-danger btn-sm" onclick="deleteUser('${u.user_id}', '${u.full_name.replace(/'/g, "\\'")}')">Sil</button>` : ''}
-          </td>
-        `;
+          </td>`;
         tbody.appendChild(tr);
       });
-
-      const filterUser = document.getElementById("adminFilterUser");
-      const currentSelected = filterUser.value;
-      filterUser.innerHTML = '<option value="ALL">Tüm Personel</option>';
-      displayUsers.forEach(u => {
-        const opt = document.createElement("option");
-        opt.value = u.username;
-        opt.textContent = `${u.full_name}`;
-        filterUser.appendChild(opt);
-      });
-      if ([...filterUser.options].some(o => o.value === currentSelected)) {
-        filterUser.value = currentSelected;
-      }
+      await populateAdminFilterUser();
     }
 
     function openUserModal(user = null) {
@@ -2096,14 +1245,11 @@
       document.getElementById("modalDepartment").value = user ? user.department : "";
       document.getElementById("modalRole").value = user ? (user.role === "SUPER_ADMIN" ? "ADMIN" : user.role) : "EMPLOYEE";
       document.getElementById("modalIsActive").value = user ? String(user.is_active) : "true";
-
       document.getElementById("userModalTitle").textContent = user ? "Personel Düzenle" : "Yeni Personel Ekle";
       document.getElementById("userModal").classList.add("open");
     }
 
-    function closeUserModal() {
-      document.getElementById("userModal").classList.remove("open");
-    }
+    function closeUserModal() { document.getElementById("userModal").classList.remove("open"); }
 
     async function editUser(userId) {
       const user = await dbGet("users", userId);
@@ -2120,57 +1266,30 @@
       const department = document.getElementById("modalDepartment").value.trim();
       const role = document.getElementById("modalRole").value;
       const isActive = document.getElementById("modalIsActive").value === "true";
-
       const existing = await dbGet("users", userId);
-      // Prevent overriding admin's SUPER_ADMIN role
+
       let finalRole = role;
-      if (existing && existing.username === "admin") {
-        finalRole = "SUPER_ADMIN";
-      }
+      if (existing && existing.username === "admin") finalRole = "SUPER_ADMIN";
 
-      const userData = {
-        user_id: userId,
-        username: username,
-        password_pin: pin,
-        full_name: fullName,
-        employee_code: empCode,
-        department: department,
-        role: finalRole,
-        is_active: isActive,
-        updated_at: new Date().toISOString()
-      };
-
+      const userData = { user_id: userId, username, password_pin: pin, full_name: fullName, employee_code: empCode, department, role: finalRole, is_active: isActive, updated_at: new Date().toISOString() };
       await dbPut("users", userData);
-
-      if (APP_STATE.googleSheetsUrl) {
-        postToGoogleSheets("saveUser", userData);
-      }
-
+      if (APP_STATE.googleSheetsUrl) await postToGoogleSheets("saveUser", userData);
       showToast(`${fullName} kaydedildi.`, "success");
       closeUserModal();
       renderAdminUsersTable();
     }
 
     async function deleteUser(userId, name) {
-      const target = await dbGet("users", userId);
-      if (target && (target.username === "admin" || target.role === "SUPER_ADMIN")) {
-        showToast("Bu hesap silinemez!", "danger");
-        return;
-      }
-      if (!confirm(`"${name}" personelini silmek istediğinize emin misiniz?`)) return;
+      const t = await dbGet("users", userId);
+      if (t && (t.username === "admin" || t.role === "SUPER_ADMIN")) { showToast("Bu hesap silinemez!", "danger"); return; }
+      if (!confirm(`"${name}" silinsin mi?`)) return;
       await dbDelete("users", userId);
-
-      if (APP_STATE.googleSheetsUrl) {
-        postToGoogleSheets("deleteUser", { user_id: userId });
-      }
-
+      if (APP_STATE.googleSheetsUrl) await postToGoogleSheets("deleteUser", { user_id: userId });
       showToast(`${name} silindi.`, "warning");
       renderAdminUsersTable();
     }
 
-    /* ======================================================== */
-    /* ADMIN LOGS (SINGLE DELETE ONLY)                          */
-    /* ======================================================== */
+    /* ========== ADMIN LOGS ========== */
     async function renderAdminLogsTable() {
       const filterUser = document.getElementById("adminFilterUser").value;
       const filterMonth = document.getElementById("adminFilterMonth").value;
@@ -2179,134 +1298,149 @@
 
       const logs = await dbGetAll("attendance_logs");
       let shifts = computePairedShifts(logs);
-
-      // Hide admin's records from non-super viewers
-      if (!isSuper) {
-        shifts = shifts.filter(s => s.username !== "admin");
-      }
-
-      if (filterUser && filterUser !== "ALL") {
-        shifts = shifts.filter(s => s.username === filterUser);
-      }
-
+      if (!isSuper) shifts = shifts.filter(s => s.username !== "admin");
+      if (filterUser && filterUser !== "ALL") shifts = shifts.filter(s => s.username === filterUser);
       if (filterMonth) {
         const [y, m] = filterMonth.split("-").map(Number);
-        shifts = shifts.filter(s => {
-          const d = new Date(s.log_date);
-          return d.getFullYear() === y && (d.getMonth() + 1) === m;
-        });
+        shifts = shifts.filter(s => { const d = new Date(s.log_date); return d.getFullYear() === y && (d.getMonth()+1) === m; });
       }
-
-      shifts.sort((a, b) => new Date(b.log_date) - new Date(a.log_date));
+      shifts.sort((a,b) => new Date(b.log_date) - new Date(a.log_date));
 
       const tbody = document.getElementById("adminLogsTableBody");
       tbody.innerHTML = "";
-
       if (shifts.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="${isSuper ? 10 : 9}" style="text-align: center; color: var(--slate-400); padding: 1.5rem; font-size: 0.8rem;">Puantaj kaydı bulunamadı.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="${isSuper ? 10 : 9}" style="text-align:center;color:var(--slate-400);padding:1.5rem;font-size:.8rem;">Puantaj kaydı bulunamadı.</td></tr>`;
         return;
       }
-
       shifts.forEach(s => {
         const tr = document.createElement("tr");
-        const statusBadge = (s.status === "TAMAMLANDI")
-          ? `<span class="badge badge-done">TAMAMLANDI</span>`
-          : `<span class="badge badge-open">${s.status}</span>`;
-
+        const badge = (s.status === "TAMAMLANDI") ? `<span class="badge badge-done">TAMAMLANDI</span>` : `<span class="badge badge-open">${s.status}</span>`;
         let actionTd = "";
-        if (isSuper) {
-          actionTd = `<td><button class="btn btn-danger btn-sm" onclick="deleteSingleAttendanceShift('${s.log_id}', '${s.out_log_id || ''}', '${s.full_name.replace(/'/g, "\\'")}', '${s.log_date}')">🗑️ Sil</button></td>`;
-        }
-
+        if (isSuper) actionTd = `<td><button class="btn btn-danger btn-sm" onclick="deleteSingleAttendanceShift('${s.log_id}', '${s.out_log_id || ''}', '${s.full_name.replace(/'/g, "\\'")}', '${s.log_date}')">🗑️</button></td>`;
         tr.innerHTML = `
           <td><strong>${s.log_date}</strong></td>
           <td><strong>${s.full_name}</strong></td>
           <td>${s.in_time ? formatTime(s.in_time) : '--:--'}</td>
           <td>${s.out_time ? formatTime(s.out_time) : '--:--'}</td>
           <td><strong>${s.total_hours.toFixed(2)}h</strong></td>
-          <td style="color: var(--primary); font-weight: 700;">${s.regular_hours.toFixed(2)}h</td>
-          <td style="color: #f97316; font-weight: 700;">${s.overtime_hours > 0 ? '+' + s.overtime_hours.toFixed(2) + 'h' : '0.00h'}</td>
-          <td>${statusBadge}</td>
+          <td style="color:var(--primary);font-weight:700;">${s.regular_hours.toFixed(2)}h</td>
+          <td style="color:#f97316;font-weight:700;">${s.overtime_hours > 0 ? '+' + s.overtime_hours.toFixed(2) + 'h' : '0.00h'}</td>
+          <td>${badge}</td>
           <td>${s.location || 'Danışmaz 3 Tesisi'}</td>
-          ${actionTd}
-        `;
+          ${actionTd}`;
         tbody.appendChild(tr);
       });
     }
 
-    /* SINGLE log deletion — admin only, one at a time, NO BULK */
     async function deleteSingleAttendanceShift(inLogId, outLogId, name, date) {
       const curr = APP_STATE.currentUser;
-      if (!curr || (curr.username !== "admin" && curr.role !== "SUPER_ADMIN")) {
-        showToast("Bu işlem için yetkiniz yok!", "danger");
-        return;
-      }
-
-      if (!confirm(`"${name}" — ${date} tarihli bu puantaj kaydını silmek istediğinize emin misiniz?`)) return;
-
-      if (inLogId) {
-        await dbDelete("attendance_logs", inLogId);
-        if (APP_STATE.googleSheetsUrl) postToGoogleSheets("deleteLog", { log_id: inLogId });
-      }
-      if (outLogId) {
-        await dbDelete("attendance_logs", outLogId);
-        if (APP_STATE.googleSheetsUrl) postToGoogleSheets("deleteLog", { log_id: outLogId });
-      }
-
+      if (!curr || (curr.username !== "admin" && curr.role !== "SUPER_ADMIN")) { showToast("Yetkiniz yok!", "danger"); return; }
+      if (!confirm(`"${name}" — ${date} kaydını silmek istediğinize emin misiniz?`)) return;
+      if (inLogId) { await dbDelete("attendance_logs", inLogId); if (APP_STATE.googleSheetsUrl) await postToGoogleSheets("deleteLog", { log_id: inLogId }); }
+      if (outLogId) { await dbDelete("attendance_logs", outLogId); if (APP_STATE.googleSheetsUrl) await postToGoogleSheets("deleteLog", { log_id: outLogId }); }
       showToast(`${name} — ${date} kaydı silindi.`, "warning");
       renderAdminLogsTable();
       renderMonthlyChart();
     }
 
-    /* ======================================================== */
-    /* EXCEL EXPORT                                            */
-    /* ======================================================== */
+    /* ========== EXCEL EXPORT ========== */
     async function exportPayrollToExcel() {
       const logs = await dbGetAll("attendance_logs");
       const users = await dbGetAll("users");
       let shifts = computePairedShifts(logs);
-
       const curr = APP_STATE.currentUser;
       const viewerIsSuper = curr && (curr.username === "admin" || curr.role === "SUPER_ADMIN");
-      if (!viewerIsSuper) {
-        shifts = shifts.filter(s => s.username !== "admin");
-      }
-
-      if (shifts.length === 0) {
-        showToast("Dışa aktarılacak veri bulunamadı.", "warning");
-        return;
-      }
+      if (!viewerIsSuper) shifts = shifts.filter(s => s.username !== "admin");
+      if (shifts.length === 0) { showToast("Dışa aktarılacak veri yok.", "warning"); return; }
 
       const dailyRows = shifts.map(s => {
-        const u = users.find(user => user.username === s.username);
-        return {
-          "Tarih": s.log_date,
-          "Sicil No": u ? u.employee_code : "-",
-          "Ad Soyad": s.full_name,
-          "Kullanıcı Adı": s.username,
-          "Departman": u ? u.department : "-",
-          "Giriş Saati": s.in_time ? formatTime(s.in_time) : "--:--",
-          "Çıkış Saati": s.out_time ? formatTime(s.out_time) : "--:--",
-          "Toplam Çalışma (Saat)": s.total_hours,
-          "Normal Mesai (8 Saat Baz)": s.regular_hours,
-          "Ek Mesai (Fazla Çalışma)": s.overtime_hours,
-          "Durum": s.status,
-          "Lokasyon": s.location || "Danışmaz 3 Tesisi"
-        };
+        const u = users.find(x => x.username === s.username);
+        return { "Tarih": s.log_date, "Sicil No": u?.employee_code || "-", "Ad Soyad": s.full_name, "Kullanıcı Adı": s.username, "Departman": u?.department || "-", "Giriş Saati": s.in_time ? formatTime(s.in_time) : "--:--", "Çıkış Saati": s.out_time ? formatTime(s.out_time) : "--:--", "Toplam Çalışma (Saat)": s.total_hours, "Normal Mesai (8 Saat Baz)": s.regular_hours, "Ek Mesai (Fazla Çalışma)": s.overtime_hours, "Durum": s.status, "Lokasyon": s.location || "Danışmaz 3 Tesisi" };
       });
 
-      const monthlySummaryMap = {};
+      const summaryMap = {};
       shifts.forEach(s => {
         if (s.total_hours > 0) {
           const key = s.username + "_" + s.log_date.substring(0, 7);
-          if (!monthlySummaryMap[key]) {
-            monthlySummaryMap[key] = {
-              "Dönem (Ay)": s.log_date.substring(0, 7),
-              "Personel": s.full_name,
-              "Kullanıcı Adı": s.username,
-              "Toplam Çalışma Günü": 0,
-              "Toplam Normal Mesai (Saat)": 0,
-              "Toplam Ek Mesai (Saat)": 0,
-              "Genel Toplam Saat": 0
-            };
-          }
+          if (!summaryMap[key]) summaryMap[key] = { "Dönem (Ay)": s.log_date.substring(0, 7), "Personel": s.full_name, "Kullanıcı Adı": s.username, "Toplam Çalışma Günü": 0, "Toplam Normal Mesai (Saat)": 0, "Toplam Ek Mesai (Saat)": 0, "Genel Toplam Saat": 0 };
+          summaryMap[key]["Toplam Çalışma Günü"] += 1;
+          summaryMap[key]["Toplam Normal Mesai (Saat)"] += s.regular_hours;
+          summaryMap[key]["Toplam Ek Mesai (Saat)"] += s.overtime_hours;
+          summaryMap[key]["Genel Toplam Saat"] += s.total_hours;
+        }
+      });
+      const summaryRows = Object.values(summaryMap).map(r => ({
+        ...r,
+        "Toplam Normal Mesai (Saat)": Math.round(r["Toplam Normal Mesai (Saat)"] * 100) / 100,
+        "Toplam Ek Mesai (Saat)": Math.round(r["Toplam Ek Mesai (Saat)"] * 100) / 100,
+        "Genel Toplam Saat": Math.round(r["Genel Toplam Saat"] * 100) / 100
+      }));
+
+      const wb = XLSX.utils.book_new();
+      const ws1 = XLSX.utils.json_to_sheet(dailyRows);
+      const ws2 = XLSX.utils.json_to_sheet(summaryRows);
+      XLSX.utils.book_append_sheet(wb, ws1, "Puantaj_Detay");
+      XLSX.utils.book_append_sheet(wb, ws2, "Aylik_Ozet");
+      [ws1, ws2].forEach(ws => {
+        const range = XLSX.utils.decode_range(ws['!ref'] || "A1:A1");
+        ws['!cols'] = Array.from({ length: range.e.c - range.s.c + 1 }, () => ({ wch: 18 }));
+      });
+      const fileName = `DANISMAZ_Puantaj_${new Date().toISOString().split("T")[0]}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+      showToast(`Excel indirildi: ${fileName}`, "success");
+    }
+
+    /* ========== UTILS ========== */
+    function formatTime(iso) {
+      if (!iso) return "--:--";
+      return new Date(iso).toLocaleTimeString("tr-TR", { hour:'2-digit', minute:'2-digit' });
+    }
+
+    function getCurrentYearMonth() {
+      const n = new Date();
+      return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`;
+    }
+
+    function populateMonthDropdowns() {
+      const months = [];
+      const now = new Date();
+      for (let i = -3; i <= 3; i++) {
+        const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+        months.push({ val: `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`, label: d.toLocaleDateString("tr-TR", { month:'long', year:'numeric' }) });
+      }
+      const cur = getCurrentYearMonth();
+      ["chartMonthSelect", "adminFilterMonth"].forEach(id => {
+        const sel = document.getElementById(id);
+        if (!sel) return;
+        sel.innerHTML = "";
+        months.forEach(m => {
+          const o = document.createElement("option");
+          o.value = m.val; o.textContent = m.label;
+          if (m.val === cur) o.selected = true;
+          sel.appendChild(o);
+        });
+      });
+    }
+
+    function showToast(msg, type = "info") {
+      const c = document.getElementById("toastContainer");
+      const t = document.createElement("div");
+      t.className = `toast toast-${type}`;
+      t.innerHTML = `<span>${msg}</span>`;
+      c.appendChild(t);
+      setTimeout(() => {
+        t.style.opacity = "0"; t.style.transform = "translateY(10px)";
+        t.style.transition = "all .3s ease";
+        setTimeout(() => t.remove(), 300);
+      }, 4000);
+    }
+
+    /* ========== INIT ========== */
+    window.addEventListener("DOMContentLoaded", async () => {
+      await initDatabase();
+      updateCloudBadges();
+      checkExistingSession();
+    });
+  </script>
+</body>
+</html>
