@@ -28,7 +28,6 @@
     *{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
     body{background:#f8fafc;color:var(--slate-800);min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden;font-size:15px;-webkit-font-smoothing:antialiased}
 
-    /* NAVBAR */
     .navbar{background:var(--white);border-bottom:1px solid var(--slate-200);padding:0.7rem 1rem;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:40;box-shadow:var(--shadow-sm);gap:0.5rem}
     .brand{display:flex;align-items:center;gap:0.45rem;font-weight:800;font-size:1.1rem;color:var(--dark);text-decoration:none;letter-spacing:-0.5px;flex-shrink:0;cursor:pointer;background:none;border:none}
     .brand-badge{background:linear-gradient(135deg,#2563eb,#3b82f6);color:#fff;font-size:.65rem;padding:.2rem .45rem;border-radius:6px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap}
@@ -47,27 +46,22 @@
     .btn-logout{background:none;border:none;cursor:pointer;color:var(--slate-500);padding:.35rem;display:flex;align-items:center;border-radius:6px;transition:all .15s;flex-shrink:0}
     .btn-logout:hover{color:var(--danger);background:var(--danger-light)}
 
-    /* SUBNAV */
     .subnav{background:var(--white);border-bottom:1px solid var(--slate-200);display:flex;padding:0 .5rem;overflow-x:auto;gap:.15rem;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:sticky;top:54px;z-index:30}
     .subnav::-webkit-scrollbar{display:none}
     .subnav-tab{padding:.7rem .75rem;font-size:.82rem;font-weight:600;color:var(--slate-600);background:none;border:none;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0}
     .subnav-tab:hover{color:var(--primary)}
     .subnav-tab.active{color:var(--primary);border-bottom-color:var(--primary)}
 
-    /* CONTAINER */
     .container{max-width:1200px;margin:.85rem auto;padding:0 .75rem calc(1.5rem + var(--safe-bottom)) .75rem;width:100%;flex:1}
 
-    /* VIEWS */
     .view-section{display:none}
     .view-section.active{display:block;animation:fadeIn .15s ease-out}
     @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 
-    /* CARDS */
     .card{background:var(--white);border-radius:var(--radius);border:1px solid var(--slate-200);box-shadow:var(--shadow-sm);padding:1.1rem;margin-bottom:1rem}
     .card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.9rem;padding-bottom:.7rem;border-bottom:1px solid var(--slate-100);flex-wrap:wrap;gap:.5rem}
     .card-title{font-size:.95rem;font-weight:700;color:var(--dark);display:flex;align-items:center;gap:.4rem;line-height:1.3}
 
-    /* BUTTONS */
     .btn{display:inline-flex;align-items:center;justify-content:center;gap:.35rem;font-weight:600;font-size:.83rem;padding:.55rem .95rem;border-radius:8px;border:1px solid transparent;cursor:pointer;transition:all .15s;min-height:40px;user-select:none;white-space:nowrap}
     .btn:active{transform:scale(.98)}
     .btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
@@ -81,30 +75,25 @@
     .btn-secondary:hover:not(:disabled){background:var(--slate-200)}
     .btn-sm{padding:.38rem .65rem;font-size:.75rem;min-height:34px;border-radius:6px}
 
-    /* FORMS */
     .form-group{margin-bottom:.85rem}
     .form-label{display:block;font-size:.8rem;font-weight:600;color:var(--slate-700);margin-bottom:.3rem}
     .form-control{width:100%;padding:.65rem .8rem;font-size:16px;border:1px solid var(--slate-300);border-radius:8px;outline:none;transition:border-color .15s,box-shadow .15s;background:var(--white);color:var(--slate-800);-webkit-appearance:none;appearance:none}
     .form-control:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.15)}
 
-    /* GRIDS */
     .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:.85rem}
     .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem}
 
-    /* METRIC CARDS */
     .metric-card{background:var(--slate-50);border:1px solid var(--slate-200);border-radius:10px;padding:.75rem;display:flex;flex-direction:column;gap:.15rem}
     .metric-title{font-size:.66rem;font-weight:700;color:var(--slate-500);text-transform:uppercase;letter-spacing:.3px;line-height:1.2}
     .metric-value{font-size:1.35rem;font-weight:800;color:var(--dark);line-height:1.2}
     .metric-subtitle{font-size:.64rem;color:var(--slate-500);line-height:1.2}
 
-    /* GEOFENCE */
     .geofence-box{background:#f8fafc;border:1px solid var(--slate-200);border-radius:12px;padding:.9rem;margin-bottom:.9rem;display:flex;flex-direction:column;gap:.65rem}
     .geofence-status-banner{display:flex;align-items:center;gap:.45rem;padding:.65rem .8rem;border-radius:8px;font-weight:600;font-size:.82rem;line-height:1.4}
     .status-inside{background:var(--success-light);color:#065f46;border:1px solid #a7f3d0}
     .status-outside{background:var(--danger-light);color:#991b1b;border:1px solid #fecaca}
     .status-locating{background:var(--warning-light);color:#92400e;border:1px solid #fde68a}
 
-    /* PUNCH BUTTONS */
     .punch-actions{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:.9rem 0}
     .punch-btn{padding:1rem .75rem;font-size:1rem;font-weight:800;border-radius:12px;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.3rem;transition:all .2s;box-shadow:var(--shadow);min-height:78px;user-select:none;text-align:center}
     .punch-btn:active:not(:disabled){transform:scale(.97)}
@@ -114,7 +103,6 @@
     .punch-btn-out:hover:not(:disabled){background:linear-gradient(135deg,#dc2626,#b91c1c)}
     .punch-btn:disabled{opacity:.35;cursor:not-allowed;box-shadow:none;transform:none}
 
-    /* TABLES */
     .table-container{width:100%;overflow-x:auto;border:1px solid var(--slate-200);border-radius:8px;-webkit-overflow-scrolling:touch;background:var(--white);position:relative}
     table{width:100%;border-collapse:collapse;font-size:.8rem;text-align:left;min-width:580px}
     th{background:var(--slate-100);color:var(--slate-700);font-weight:700;padding:.6rem .7rem;border-bottom:1px solid var(--slate-200);white-space:nowrap;font-size:.75rem;position:sticky;top:0;z-index:1}
@@ -122,14 +110,12 @@
     tr:last-child td{border-bottom:none}
     tr:hover td{background:var(--slate-50)}
 
-    /* BADGES */
     .badge{display:inline-flex;align-items:center;gap:.2rem;padding:.18rem .45rem;border-radius:5px;font-size:.68rem;font-weight:700;white-space:nowrap;line-height:1.2}
     .badge-in{background:#d1fae5;color:#065f46}
     .badge-out{background:#fee2e2;color:#991b1b}
     .badge-done{background:#e0e7ff;color:#3730a3}
     .badge-open{background:#fef3c7;color:#92400e}
 
-    /* MODAL */
     .modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:50;display:none;align-items:center;justify-content:center;padding:.75rem}
     .modal-backdrop.open{display:flex}
     .modal{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow-lg);width:100%;max-width:500px;padding:1.25rem;animation:modalPop .18s ease-out;max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
@@ -139,7 +125,6 @@
     .modal-close{background:none;border:none;font-size:1.5rem;color:var(--slate-400);cursor:pointer;line-height:1;padding:.2rem;flex-shrink:0}
     .modal-close:hover{color:var(--danger)}
 
-    /* TOAST */
     .toast-container{position:fixed;bottom:calc(1rem + var(--safe-bottom));right:.75rem;left:.75rem;z-index:9999;display:flex;flex-direction:column;gap:.45rem;pointer-events:none;max-width:420px;margin-left:auto}
     .toast{background:var(--dark);color:#fff;padding:.7rem 1rem;border-radius:8px;font-size:.82rem;font-weight:500;box-shadow:var(--shadow-lg);pointer-events:auto;animation:toastIn .2s ease-out;display:flex;align-items:center;gap:.4rem;line-height:1.4}
     .toast-success{background:#065f46;border-left:4px solid #10b981}
@@ -147,7 +132,6 @@
     .toast-warning{background:#78350f;border-left:4px solid #f59e0b}
     @keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-    /* LOGIN */
     .login-wrapper{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%)}
     .login-box{background:var(--white);border-radius:16px;padding:2rem 1.75rem;width:100%;max-width:400px;box-shadow:0 25px 35px -5px rgb(0 0 0/.35)}
     .login-header{text-align:center;margin-bottom:1.35rem}
@@ -157,7 +141,6 @@
     .login-warning{background:var(--warning-light);color:#92400e;border:1px solid #fde68a;padding:.6rem .75rem;border-radius:8px;font-size:.75rem;margin-bottom:.9rem;line-height:1.4;display:none}
     .login-warning.show{display:block}
 
-    /* RESPONSIVE */
     @media (max-width:768px){.grid-4{grid-template-columns:1fr 1fr}.grid-2{grid-template-columns:1fr}}
     @media (max-width:640px){
       body{font-size:14px}
@@ -442,7 +425,6 @@
     </main>
   </div>
 
-  <!-- SETTINGS MODAL -->
   <div id="settingsModal" class="modal-backdrop">
     <div class="modal">
       <div class="modal-header">
@@ -463,7 +445,6 @@
     </div>
   </div>
 
-  <!-- USER MODAL -->
   <div id="userModal" class="modal-backdrop">
     <div class="modal">
       <div class="modal-header">
@@ -482,7 +463,7 @@
             <input type="text" id="modalUsername" class="form-control" placeholder="kullanici.adi" required autocapitalize="none" spellcheck="false">
           </div>
           <div class="form-group">
-            <label class="form-label">Şifre / PIN</label>
+            <label class="form-label" id="modalPinLabel">Şifre / PIN</label>
             <input type="text" id="modalPin" class="form-control" placeholder="Şifre" required>
           </div>
         </div>
@@ -521,7 +502,8 @@
   </div>
 
   <script>
-    const DEFAULT_GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbzOm_T1cWpF9s7igM5DQI2KjkFSetpDsr1zivSlR0VlwbC5ZZGKmnN2H9mYdlcJaTXyyQ/exec";
+    // ✅ YENİ URL — Kullanıcı tarafından sağlandı
+    const DEFAULT_GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbwdJghWoBrjSTovPz9c61s6KXW5BFBp0s8AyQau6rbhGE6_AtLDYblheGF2iGZiQLaDQA/exec";
 
     const APP_STATE = {
       currentUser: null,
@@ -557,7 +539,7 @@
               await dbPut("users", {
                 user_id: u.User_ID || ("usr-" + u.Username),
                 username: String(u.Username).toLowerCase(),
-                password_pin: String(u.Password_PIN),
+                password_pin: "",
                 full_name: u.Full_Name,
                 employee_code: u.Employee_Code,
                 department: u.Department,
@@ -610,6 +592,23 @@
       }
     }
 
+    async function loginToCloud(username, password) {
+      if (!APP_STATE.googleSheetsUrl) {
+        return { success: false, error: "Bulut URL tanımlı değil" };
+      }
+      try {
+        const res = await fetch(APP_STATE.googleSheetsUrl, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({ action: "login", data: { username, password_pin: password } })
+        });
+        return await res.json();
+      } catch (err) {
+        console.warn("Login error:", err);
+        return { success: false, error: "Bağlantı hatası" };
+      }
+    }
+
     async function syncPendingLogs() {
       if (!APP_STATE.googleSheetsUrl) return;
       const logs = await dbGetAll("attendance_logs");
@@ -621,7 +620,6 @@
           await dbPut("attendance_logs", log);
         }
       }
-      if (pending.length > 0) console.log(`Synced ${pending.length} pending logs.`);
     }
 
     function updateCloudBadges() {
@@ -724,12 +722,10 @@
     }
 
     async function seedProductionData() {
-      // ONLY seed location - NO USER CREDENTIALS IN CODE!
       await dbPut("locations", APP_STATE.locations[0]);
       await dbDelete("locations", "loc-1");
       await dbDelete("locations", "loc-2");
       await dbDelete("locations", "loc-samsun-tekkekoy");
-      // Purge any legacy demo users from previous version
       await dbDelete("users", "usr-mehmet");
       await dbDelete("users", "usr-ayse");
       await dbDelete("users", "usr-can");
@@ -744,54 +740,45 @@
     function dbGet(s, k) { return new Promise((res, rej) => { const tx = db.transaction(s, "readonly"); const r = tx.objectStore(s).get(k); r.onsuccess = () => res(r.result); r.onerror = (e) => rej(e); }); }
     function dbDelete(s, k) { return new Promise((res, rej) => { const tx = db.transaction(s, "readwrite"); const r = tx.objectStore(s).delete(k); r.onsuccess = () => res(r.result); r.onerror = (e) => rej(e); }); }
 
-    /* ========== AUTH (CLOUD ONLY) ========== */
+    /* ========== AUTH ========== */
     async function handleLogin(e) {
       e.preventDefault();
-      const usernameInput = document.getElementById("loginUsername").value.trim().toLowerCase();
-      const passwordInput = document.getElementById("loginPassword").value.trim();
+      const username = document.getElementById("loginUsername").value.trim().toLowerCase();
+      const password = document.getElementById("loginPassword").value.trim();
 
-      if (!usernameInput || !passwordInput) {
+      if (!username || !password) {
         showToast("Kullanıcı adı ve şifre girin.", "warning");
         return;
       }
-
       if (!APP_STATE.googleSheetsUrl) {
-        showToast("Lütfen önce bulut bağlantısını yapılandırın.", "warning");
+        showToast("Bulut bağlantısı yapılandırılmamış.", "warning");
         openSettingsModal();
         return;
       }
 
       showToast("Doğrulanıyor...", "info");
-      const cloudData = await fetchFromGoogleSheets();
+      const res = await loginToCloud(username, password);
 
-      if (!cloudData || !cloudData.success) {
-        showToast("Bulut bağlantısı kurulamadı. İnternetinizi kontrol edin.", "danger");
+      if (!res || !res.success) {
+        showToast(res?.error || "Kullanıcı adı veya şifre hatalı!", "danger");
         return;
       }
 
-      const users = await dbGetAll("users");
+      APP_STATE.currentUser = {
+        user_id: res.user.user_id,
+        username: res.user.username,
+        full_name: res.user.full_name,
+        employee_code: res.user.employee_code,
+        department: res.user.department,
+        email: res.user.email,
+        role: res.user.role || "EMPLOYEE",
+        is_active: true
+      };
 
-      if (users.length === 0) {
-        showToast("Sistemde kullanıcı bulunamadı. Google Sheets'te Users_Master sayfasına kullanıcı ekleyin.", "warning");
-        openSettingsModal();
-        return;
-      }
+      sessionStorage.setItem("danismaz_user", JSON.stringify(APP_STATE.currentUser));
+      showToast(`Hoş geldiniz, ${res.user.full_name}!`, "success");
 
-      const user = users.find(u => u.username.toLowerCase() === usernameInput);
-
-      if (!user || user.password_pin !== passwordInput) {
-        showToast("Kullanıcı adı veya şifre hatalı!", "danger");
-        return;
-      }
-
-      if (!user.is_active) {
-        showToast("Hesabınız pasife alınmış.", "danger");
-        return;
-      }
-
-      APP_STATE.currentUser = user;
-      sessionStorage.setItem("danismaz_user", JSON.stringify(user));
-      showToast(`Hoş geldiniz, ${user.full_name}!`, "success");
+      await fetchFromGoogleSheets();
       await syncPendingLogs();
       setupAppUI();
     }
@@ -839,7 +826,6 @@
         el.style.display = isAdmin ? "inline-block" : "none";
       });
 
-      // Test/debug buttons only for SUPER_ADMIN
       const dbg = document.getElementById("debugButtons");
       if (dbg) dbg.style.display = isSuper ? "flex" : "none";
 
@@ -1223,7 +1209,7 @@
           <td><code style="font-size:.72rem;">${u.employee_code || '-'}</code></td>
           <td><strong>${u.full_name}</strong></td>
           <td><code style="font-size:.72rem;">${u.username}</code></td>
-          <td><span style="font-family:monospace;font-weight:700;background:var(--slate-100);padding:.12rem .35rem;border-radius:4px;font-size:.72rem;">${u.password_pin}</span></td>
+          <td><span style="font-family:monospace;color:var(--slate-400);font-size:.72rem;">🔒 Gizli</span></td>
           <td>${u.department || '-'}</td>
           <td>${roleLabel}</td>
           <td>${activeLabel}</td>
@@ -1240,12 +1226,26 @@
       document.getElementById("modalUserId").value = user ? user.user_id : "";
       document.getElementById("modalFullName").value = user ? user.full_name : "";
       document.getElementById("modalUsername").value = user ? user.username : "";
-      document.getElementById("modalPin").value = user ? user.password_pin : "";
+      document.getElementById("modalPin").value = "";
       document.getElementById("modalEmpCode").value = user ? user.employee_code : "";
       document.getElementById("modalDepartment").value = user ? user.department : "";
       document.getElementById("modalRole").value = user ? (user.role === "SUPER_ADMIN" ? "ADMIN" : user.role) : "EMPLOYEE";
       document.getElementById("modalIsActive").value = user ? String(user.is_active) : "true";
-      document.getElementById("userModalTitle").textContent = user ? "Personel Düzenle" : "Yeni Personel Ekle";
+
+      const pinInput = document.getElementById("modalPin");
+      const pinLabel = document.getElementById("modalPinLabel");
+      if (user) {
+        pinInput.required = false;
+        pinInput.placeholder = "Değiştirmek için doldurun";
+        pinLabel.textContent = "Şifre / PIN (boş bırakılırsa değişmez)";
+        document.getElementById("userModalTitle").textContent = "Personel Düzenle";
+      } else {
+        pinInput.required = true;
+        pinInput.placeholder = "Şifre";
+        pinLabel.textContent = "Şifre / PIN";
+        document.getElementById("userModalTitle").textContent = "Yeni Personel Ekle";
+      }
+
       document.getElementById("userModal").classList.add("open");
     }
 
@@ -1271,12 +1271,34 @@
       let finalRole = role;
       if (existing && existing.username === "admin") finalRole = "SUPER_ADMIN";
 
-      const userData = { user_id: userId, username, password_pin: pin, full_name: fullName, employee_code: empCode, department, role: finalRole, is_active: isActive, updated_at: new Date().toISOString() };
+      if (!existing && !pin) {
+        showToast("Yeni kullanıcı için şifre zorunludur!", "danger");
+        return;
+      }
+
+      const userData = {
+        user_id: userId,
+        username,
+        password_pin: "",
+        full_name: fullName,
+        employee_code: empCode,
+        department,
+        role: finalRole,
+        is_active: isActive,
+        updated_at: new Date().toISOString()
+      };
       await dbPut("users", userData);
-      if (APP_STATE.googleSheetsUrl) await postToGoogleSheets("saveUser", userData);
+
+      if (APP_STATE.googleSheetsUrl) {
+        const payload = { ...userData, password_pin: pin || "" };
+        const ok = await postToGoogleSheets("saveUser", payload);
+        if (!ok) showToast("Bulut kaydı başarısız — yerel kaydedildi.", "warning");
+      }
+
       showToast(`${fullName} kaydedildi.`, "success");
       closeUserModal();
       renderAdminUsersTable();
+      await fetchFromGoogleSheets();
     }
 
     async function deleteUser(userId, name) {
