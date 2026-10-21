@@ -566,7 +566,7 @@
       <form id="loginForm" onsubmit="handleLogin(event)">
         <div class="form-group">
           <label class="form-label">Kullanıcı Adı</label>
-          <input type="text" id="loginUsername" class="form-control" placeholder="Örn: admin veya mehmet.yilmaz" required autocomplete="username">
+          <input type="text" id="loginUsername" class="form-control" placeholder="Örn: admin veya danismaz.murat" required autocomplete="username">
         </div>
         <div class="form-group">
           <label class="form-label">Şifre / PIN Kodu</label>
@@ -577,10 +577,11 @@
           Giriş Yap
         </button>
 
-        <div style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--slate-200); font-size: 0.78rem; color: var(--slate-500); text-align: center;">
-          <p><strong>Hazır Giriş Bilgileri:</strong></p>
-          <p>👑 Master Admin: <code>admin</code> / PIN: <code>admin1234</code></p>
-          <p>👷 Çalışan: <code>mehmet.yilmaz</code> / PIN: <code>1234</code></p>
+        <div style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--slate-200); font-size: 0.78rem; color: var(--slate-600); text-align: left; line-height: 1.5;">
+          <p style="font-weight: 700; text-align: center; margin-bottom: 0.35rem; color: var(--dark);">Sistem Kullanıcıları:</p>
+          <p>👑 <strong>Yöneticiler:</strong> <code>admin</code>, <code>danismaz.murat</code></p>
+          <p>👷 <strong>Personeller:</strong> <code>zorlu.can</code>, <code>dulger.bedirhan</code>, <code>bas.oktay</code></p>
+          <p style="font-size: 0.72rem; color: var(--slate-400); margin-top: 0.35rem; text-align: center;"><em>Şifrelerinizi kurum yöneticinizden öğrenebilirsiniz.</em></p>
         </div>
       </form>
     </div>
@@ -652,12 +653,15 @@
                 </select>
               </div>
 
-              <div style="display: flex; gap: 0.5rem; align-items: flex-end;">
+              <div style="display: flex; gap: 0.5rem; align-items: flex-end; flex-wrap: wrap;">
                 <button class="btn btn-secondary btn-sm" onclick="fetchLiveGPS()" title="GPS Koordinatlarını Yenile">
                   🔄 Konumu Yenile
                 </button>
-                <button class="btn btn-secondary btn-sm" onclick="simulateInsideGeofence()" title="Test için fabrikanın içine ışınlan">
-                  🎯 Fabrika İçi Simüle Et
+                <button class="btn btn-secondary btn-sm" onclick="simulateInsideGeofence()" title="Test için fabrika sınırına (250m içine) ışınlan">
+                  🎯 Fabrika İçi (250m)
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="simulate5KmAway()" title="Test için 5 km uzağa ışınlan (Otomatik Çıkış Testi)">
+                  🚗 5 km Dışına Git (Oto-Çıkış)
                 </button>
               </div>
             </div>
@@ -1127,8 +1131,9 @@
           }
 
           if (data.locations && data.locations.length > 0) {
-            for (const loc of data.locations) {
-              let lat = 40.98765, lng = 29.12345;
+            const validLocations = data.locations.filter(l => l.Location_ID !== "loc-1" && l.Location_ID !== "loc-2");
+            for (const loc of validLocations) {
+              let lat = 41.238454, lng = 36.426137;
               if (loc.Center_Coordinates && String(loc.Center_Coordinates).includes(",")) {
                 const parts = String(loc.Center_Coordinates).split(",");
                 lat = parseFloat(parts[0].trim());
@@ -1139,7 +1144,7 @@
                 name: loc.Location_Name,
                 latitude: lat,
                 longitude: lng,
-                allowed_radius_meters: parseInt(loc.Allowed_Radius_Meters) || 150,
+                allowed_radius_meters: parseInt(loc.Allowed_Radius_Meters) || 250,
                 is_active: loc.Is_Active === true || String(loc.Is_Active).toUpperCase() === "TRUE"
               });
             }
@@ -1301,21 +1306,25 @@
       if (APP_STATE.googleSheetsUrl) {
         const cloudData = await fetchFromGoogleSheets();
         if (cloudData && cloudData.users && cloudData.users.length > 0) {
+          await dbDelete("users", "usr-mehmet");
+          await dbDelete("users", "usr-ayse");
+          await dbDelete("locations", "loc-1");
+          await dbDelete("locations", "loc-2");
           return;
         }
       }
 
       const usersCount = await countStoreItems("users");
       if (usersCount === 0) {
-        console.log("Seeding initial database...");
+        console.log("Gerçek kullanıcılar ve lokasyon yükleniyor...");
         
-        // 1. Initial Users (Master Admin + Employees)
+        // 1. Gerçek Kullanıcılar
         const initialUsers = [
           {
             user_id: "usr-admin",
             username: "admin",
-            password_pin: "admin1234",
-            full_name: "Sistem Yöneticisi (Master)",
+            password_pin: "99767Bir786***",
+            full_name: "Sistem Yöneticisi",
             employee_code: "SYS-001",
             department: "Yönetim",
             role: "ADMIN",
@@ -1323,23 +1332,45 @@
             created_at: new Date().toISOString()
           },
           {
-            user_id: "usr-mehmet",
-            username: "mehmet.yilmaz",
-            password_pin: "1234",
-            full_name: "Mehmet Yılmaz",
-            employee_code: "HR-00142",
-            department: "Üretim - Vardiya A",
+            user_id: "usr-murat",
+            username: "danismaz.murat",
+            password_pin: "danismaz.murat12345",
+            full_name: "Murat Danışmaz",
+            employee_code: "MNG-001",
+            department: "Genel Yönetim",
+            role: "ADMIN",
+            is_active: true,
+            created_at: new Date().toISOString()
+          },
+          {
+            user_id: "usr-can",
+            username: "zorlu.can",
+            password_pin: "zorlu.can12345",
+            full_name: "Can Zorlu",
+            employee_code: "EMP-001",
+            department: "Üretim / Saha",
             role: "EMPLOYEE",
             is_active: true,
             created_at: new Date().toISOString()
           },
           {
-            user_id: "usr-ayse",
-            username: "ayse.kaya",
-            password_pin: "5678",
-            full_name: "Ayşe Kaya",
-            employee_code: "HR-00143",
-            department: "Kalite Kontrol",
+            user_id: "usr-bedirhan",
+            username: "dulger.bedirhan",
+            password_pin: "dulger.bedirhan12345",
+            full_name: "Bedirhan Dülger",
+            employee_code: "EMP-002",
+            department: "Üretim / Saha",
+            role: "EMPLOYEE",
+            is_active: true,
+            created_at: new Date().toISOString()
+          },
+          {
+            user_id: "usr-oktay",
+            username: "bas.oktay",
+            password_pin: "bas.oktay12345",
+            full_name: "Oktay Baş",
+            employee_code: "EMP-003",
+            department: "Lojistik / Saha",
             role: "EMPLOYEE",
             is_active: true,
             created_at: new Date().toISOString()
@@ -1353,22 +1384,14 @@
           }
         }
 
-        // 2. Initial Locations
+        // 2. Gerçek Fabrika Lokasyonu
         const initialLocations = [
           {
-            location_id: "loc-1",
-            name: "Ana Fabrika - Tesis A (Kartal/İst)",
-            latitude: 40.98765,
-            longitude: 29.12345,
+            location_id: "loc-samsun-tekkekoy",
+            name: "Vali M. Erdogan Cebeci Bul., No:28, Şabanoğlu OSB Mah., Tekkeköy, Samsun",
+            latitude: 41.238454,
+            longitude: 36.426137,
             allowed_radius_meters: 250,
-            is_active: true
-          },
-          {
-            location_id: "loc-2",
-            name: "Lojistik Depo - B Blok (Tuzla/İst)",
-            latitude: 40.86543,
-            longitude: 29.35124,
-            allowed_radius_meters: 300,
             is_active: true
           }
         ];
@@ -1380,64 +1403,7 @@
           }
         }
 
-        // 3. Seed Realistic Monthly Attendance Data (Including the 17-hour overtime shift example!)
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = now.getMonth(); // 0-based
-        
-        // Days 1 to 10 sample history
-        const demoShifts = [
-          { day: 1, inH: 8, inM: 0, outH: 17, outM: 0 },   // 9 hours -> 8h mesai + 1h ek
-          { day: 2, inH: 7, inM: 0, outH: 24, outM: 0 },   // 17 hours -> 8h mesai + 9h ek! (Requested Example)
-          { day: 3, inH: 8, inM: 30, outH: 15, outM: 0 },  // 6.5 hours -> 6.5h mesai + 0h ek
-          { day: 4, inH: 8, inM: 0, outH: 18, outM: 30 },  // 10.5 hours -> 8h mesai + 2.5h ek
-          { day: 5, inH: 8, inM: 0, outH: 16, outM: 30 },  // 8.5 hours -> 8h mesai + 0.5h ek
-          { day: 8, inH: 7, inM: 30, outH: 19, outM: 0 },  // 11.5 hours -> 8h mesai + 3.5h ek
-          { day: 9, inH: 8, inM: 0, outH: 17, outM: 0 },   // 9 hours -> 8h mesai + 1h ek
-          { day: 10, inH: 8, inM: 0, outH: 16, outM: 0 }   // 8 hours -> 8h mesai + 0h ek
-        ];
-
-        for (const shift of demoShifts) {
-          const shiftDate = new Date(year, month, shift.day);
-          const dateStr = shiftDate.toISOString().split("T")[0];
-
-          const tIn = new Date(year, month, shift.day, shift.inH, shift.inM, 0);
-          const tOut = new Date(year, month, shift.day, shift.outH, shift.outM, 0);
-
-          // Punch IN
-          await dbPut("attendance_logs", {
-            log_id: "demo-in-" + shift.day,
-            username: "mehmet.yilmaz",
-            full_name: "Mehmet Yılmaz",
-            transaction_type: "GİRİŞ",
-            log_date: dateStr,
-            log_timestamp: tIn.toISOString(),
-            latitude: 40.98768,
-            longitude: 29.12348,
-            target_location_id: "loc-1",
-            target_location_name: "Ana Fabrika - Tesis A (Kartal/İst)",
-            distance_meters: 4.2,
-            geofence_status: "VERIFIED_INSIDE",
-            audit_notes: "Sistem başlangıç verisi"
-          });
-
-          // Punch OUT
-          await dbPut("attendance_logs", {
-            log_id: "demo-out-" + shift.day,
-            username: "mehmet.yilmaz",
-            full_name: "Mehmet Yılmaz",
-            transaction_type: "ÇIKIŞ",
-            log_date: dateStr,
-            log_timestamp: tOut.toISOString(),
-            latitude: 40.98767,
-            longitude: 29.12347,
-            target_location_id: "loc-1",
-            target_location_name: "Ana Fabrika - Tesis A (Kartal/İst)",
-            distance_meters: 3.8,
-            geofence_status: "VERIFIED_INSIDE",
-            audit_notes: "Sistem başlangıç verisi"
-          });
-        }
+        // 3. Simülasyon kayıtları tamamen temizlendi — Sistem temiz 0 log ile başlar.
       }
     }
 
@@ -1684,27 +1650,110 @@
           APP_STATE.isInsideGeofence = false;
           updatePunchButtonsState();
         },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-      );
+      if (navigator.geolocation && !APP_STATE.watchId) {
+        APP_STATE.watchId = navigator.geolocation.watchPosition(
+          (pos) => {
+            APP_STATE.deviceCoords = {
+              latitude: pos.coords.latitude,
+              longitude: pos.coords.longitude,
+              accuracy: pos.coords.accuracy
+            };
+            const disp = document.getElementById("coordsDisplay");
+            if (disp) {
+              disp.textContent = `Cihaz Koordinatı: ${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)} (±${Math.round(pos.coords.accuracy)}m)`;
+            }
+            evaluateGeofence();
+          },
+          (err) => console.warn("Watch GPS:", err),
+          { enableHighAccuracy: true, maximumAge: 10000, timeout: 20000 }
+        );
+      }
     }
 
-    /* Simulate inside geofence for testing/demo */
+    /* Simulate inside geofence for testing/demo (within 250m) */
     async function simulateInsideGeofence() {
       const selectedLocId = document.getElementById("punchLocationSelect").value;
       const loc = APP_STATE.locations.find(l => l.location_id === selectedLocId);
       if (!loc) return;
 
-      // Small jitter ~5 meters
+      // Small offset ~15 meters
       APP_STATE.deviceCoords = {
-        latitude: loc.latitude + 0.00003,
-        longitude: loc.longitude + 0.00002,
+        latitude: loc.latitude + 0.00010,
+        longitude: loc.longitude + 0.00010,
         accuracy: 5
       };
 
       document.getElementById("coordsDisplay").textContent = 
         `Cihaz Koordinatı (Simüle): ${APP_STATE.deviceCoords.latitude.toFixed(5)}, ${APP_STATE.deviceCoords.longitude.toFixed(5)}`;
-      showToast("Fabrika kapsama alanına sanal olarak giriş yapıldı.", "success");
+      showToast("Fabrika kapsama alanına (250m içine) sanal olarak giriş yapıldı.", "success");
       evaluateGeofence();
+    }
+
+    /* Simulate > 5km away for auto-checkout test */
+    async function simulate5KmAway() {
+      const selectedLocId = document.getElementById("punchLocationSelect").value;
+      const loc = APP_STATE.locations.find(l => l.location_id === selectedLocId);
+      if (!loc) return;
+
+      // ~5.8 km offset
+      APP_STATE.deviceCoords = {
+        latitude: loc.latitude + 0.050,
+        longitude: loc.longitude + 0.035,
+        accuracy: 10
+      };
+
+      document.getElementById("coordsDisplay").textContent = 
+        `Cihaz Koordinatı (5.8 km uzakta): ${APP_STATE.deviceCoords.latitude.toFixed(5)}, ${APP_STATE.deviceCoords.longitude.toFixed(5)}`;
+      showToast("Fabrikadan 5 km uzağa gidildi simülasyonu çalıştırıldı.", "warning");
+      evaluateGeofence();
+    }
+
+    let isAutoCheckingOut = false;
+    async function triggerAutoCheckout(distMeters, loc) {
+      if (isAutoCheckingOut) return;
+      isAutoCheckingOut = true;
+
+      try {
+        const u = APP_STATE.currentUser;
+        if (!u || APP_STATE.allowedTransaction !== "ÇIKIŞ") return;
+
+        const now = new Date();
+        const kmStr = (distMeters / 1000).toFixed(1);
+        const logEntry = {
+          log_id: "auto-out-" + Date.now() + "-" + Math.random().toString(36).substring(2, 6),
+          username: u.username,
+          full_name: u.full_name,
+          transaction_type: "ÇIKIŞ",
+          log_date: now.toISOString().split("T")[0],
+          log_timestamp: now.toISOString(),
+          latitude: APP_STATE.deviceCoords ? APP_STATE.deviceCoords.latitude : 0,
+          longitude: APP_STATE.deviceCoords ? APP_STATE.deviceCoords.longitude : 0,
+          target_location_id: loc.location_id,
+          target_location_name: loc.name,
+          distance_meters: Math.round(distMeters),
+          geofence_status: "OUT_OF_BOUNDS",
+          audit_notes: `OTOMATİK ÇIKIŞ: Fabrikadan 5 km uzaklaşıldı (${kmStr} km)`
+        };
+
+        // 1. Save to local IndexedDB
+        await dbPut("attendance_logs", logEntry);
+
+        // 2. Post to Google Sheets Cloud
+        if (APP_STATE.googleSheetsUrl) {
+          postToGoogleSheets("punch", logEntry).then(ok => {
+            if (ok) console.log("Otomatik çıkış Google Sheets'e işlendi.");
+          });
+        }
+
+        showToast(`🚨 Fabrikadan 5 km (${kmStr} km) uzaklaştığınız için sistem otomatik olarak VARDİYA ÇIKIŞ kaydı oluşturdu!`, "danger");
+
+        await updatePunchStateUI();
+        await renderMonthlyChart();
+      } catch (err) {
+        console.error("Auto checkout error:", err);
+      } finally {
+        setTimeout(() => { isAutoCheckingOut = false; }, 15000);
+      }
     }
 
     async function evaluateGeofence() {
@@ -1735,16 +1784,23 @@
       );
 
       APP_STATE.distanceMeters = dist;
-      distDisplay.textContent = `Mesafe: ${dist} metre (İzin verilen: ${loc.allowed_radius_meters}m)`;
+      distDisplay.textContent = `Mesafe: ${dist < 1000 ? dist + ' metre' : (dist/1000).toFixed(2) + ' km'} (İzin verilen: ${loc.allowed_radius_meters}m)`;
 
       if (dist <= loc.allowed_radius_meters) {
         APP_STATE.isInsideGeofence = true;
         banner.className = "geofence-status-banner status-inside";
-        banner.innerHTML = `<span>✅ <strong>KAPSAMA ALANI İÇİNDESİNİZ</strong> — ${loc.name} tesisine ${dist}m mesafedesiniz. İşlem yapabilirsiniz.</span>`;
+        banner.innerHTML = `<span>✅ <strong>KAPSAMA ALANI İÇİNDESİNİZ (250m İçi)</strong> — ${loc.name} tesisine ${dist}m mesafedesiniz. Giriş/Çıkış yapabilirsiniz.</span>`;
       } else {
         APP_STATE.isInsideGeofence = false;
         banner.className = "geofence-status-banner status-outside";
-        banner.innerHTML = `<span>⛔ <strong>KAPSAMA ALANI DIŞINDASINIZ!</strong> Fabrika merkezine ${dist}m uzaklıktasınız (Maks: ${loc.allowed_radius_meters}m). Giriş/Çıkış yapabilmek için fabrika sınırlarına giriniz.</span>`;
+
+        // 5 KM OTOMATIK ÇIKIŞ KONTROLÜ
+        if (dist >= 5000 && APP_STATE.allowedTransaction === "ÇIKIŞ") {
+          banner.innerHTML = `<span>🚨 <strong>5 KM SINIRI AŞILDI (${(dist/1000).toFixed(1)} km)!</strong> Fabrikadan uzaklaşıldığı için sistem otomatik olarak vardiya ÇIKIŞ yaptı.</span>`;
+          triggerAutoCheckout(dist, loc);
+        } else {
+          banner.innerHTML = `<span>⛔ <strong>KAPSAMA ALANI DIŞINDASINIZ!</strong> Fabrika merkezine ${dist < 1000 ? dist + 'm' : (dist/1000).toFixed(1) + ' km'} uzaklıktasınız (Maks: ${loc.allowed_radius_meters}m). Giriş/Çıkış yapabilmek için 250m sınırlarına giriniz.</span>`;
+        }
       }
 
       updatePunchButtonsState();
