@@ -1,0 +1,2555 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>DanGeo — Kurumsal Geofence Puantaj & Devam Takip Sistemi</title>
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- SheetJS (xlsx) CDN for Excel exports -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-light: #eff6ff;
+      --success: #10b981;
+      --success-light: #ecfdf5;
+      --warning: #f59e0b;
+      --warning-light: #fffbeb;
+      --danger: #ef4444;
+      --danger-light: #fef2f2;
+      --dark: #0f172a;
+      --slate-800: #1e293b;
+      --slate-700: #334155;
+      --slate-600: #475569;
+      --slate-500: #64748b;
+      --slate-400: #94a3b8;
+      --slate-300: #cbd5e1;
+      --slate-200: #e2e8f0;
+      --slate-100: #f1f5f9;
+      --slate-50: #f8fafc;
+      --white: #ffffff;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: #f1f5f9;
+      color: var(--slate-800);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navbar */
+    .navbar {
+      background: var(--white);
+      border-bottom: 1px solid var(--slate-200);
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: var(--dark);
+      text-decoration: none;
+    }
+
+    .brand-badge {
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      color: white;
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .cloud-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .cloud-connected { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+    .cloud-connected:hover { background: #bbf7d0; }
+    .cloud-local { background: #fef9c3; color: #854d0e; border: 1px solid #fde047; }
+    .cloud-local:hover { background: #fef08a; }
+
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--slate-100);
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+      border: 1px solid var(--slate-200);
+      font-size: 0.85rem;
+    }
+
+    .user-pill .role-badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.15rem 0.45rem;
+      border-radius: 9999px;
+      text-transform: uppercase;
+    }
+    .role-admin { background: #fef3c7; color: #b45309; }
+    .role-emp { background: #dbeafe; color: #1e40af; }
+
+    .btn-logout {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--slate-500);
+      padding: 0.2rem;
+      display: flex;
+      align-items: center;
+      transition: color 0.15s;
+    }
+    .btn-logout:hover { color: var(--danger); }
+
+    /* Navigation Tabs (Top Subnav) */
+    .subnav {
+      background: var(--white);
+      border-bottom: 1px solid var(--slate-200);
+      display: flex;
+      padding: 0 1rem;
+      overflow-x: auto;
+      gap: 0.5rem;
+    }
+
+    .subnav-tab {
+      padding: 0.75rem 1rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--slate-600);
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .subnav-tab:hover { color: var(--primary); }
+    .subnav-tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1200px;
+      margin: 1.25rem auto;
+      padding: 0 1rem;
+      width: 100%;
+      flex: 1;
+    }
+
+    /* Views */
+    .view-section { display: none; }
+    .view-section.active { display: block; animation: fadeIn 0.2s ease-in-out; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--white);
+      border-radius: var(--radius);
+      border: 1px solid var(--slate-200);
+      box-shadow: var(--shadow-sm);
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--slate-100);
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--dark);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      font-size: 0.88rem;
+      padding: 0.6rem 1.1rem;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
+    .btn-success { background: var(--success); color: white; }
+    .btn-success:hover:not(:disabled) { background: #059669; }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-danger:hover:not(:disabled) { background: #dc2626; }
+    .btn-secondary { background: var(--slate-100); color: var(--slate-700); border-color: var(--slate-300); }
+    .btn-secondary:hover:not(:disabled) { background: var(--slate-200); }
+    .btn-sm { padding: 0.35rem 0.65rem; font-size: 0.78rem; border-radius: 6px; }
+
+    /* Forms & Inputs */
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--slate-700);
+      margin-bottom: 0.35rem;
+    }
+    .form-control {
+      width: 100%;
+      padding: 0.65rem 0.85rem;
+      font-size: 0.9rem;
+      border: 1px solid var(--slate-300);
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.15s;
+      background: var(--white);
+    }
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    /* Grid Layouts */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+
+    @media (max-width: 840px) {
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    }
+
+    /* Metric Cards */
+    .metric-card {
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: 10px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .metric-title {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--slate-500);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .metric-value {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--dark);
+    }
+    .metric-subtitle {
+      font-size: 0.75rem;
+      color: var(--slate-500);
+    }
+
+    /* GPS & Geofence Box */
+    .geofence-box {
+      background: var(--slate-50);
+      border: 2px dashed var(--slate-300);
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .geofence-status-banner {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.88rem;
+    }
+    .status-inside { background: var(--success-light); color: #065f46; border: 1px solid #a7f3d0; }
+    .status-outside { background: var(--danger-light); color: #991b1b; border: 1px solid #fecaca; }
+    .status-locating { background: var(--warning-light); color: #92400e; border: 1px solid #fde68a; }
+
+    /* Punch Big Buttons */
+    .punch-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1.25rem 0;
+    }
+    .punch-btn {
+      padding: 1.25rem 1rem;
+      font-size: 1.15rem;
+      font-weight: 800;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      transition: all 0.2s;
+      box-shadow: var(--shadow);
+    }
+    .punch-btn-in {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+    }
+    .punch-btn-in:hover:not(:disabled) {
+      background: linear-gradient(135deg, #059669, #047857);
+      transform: translateY(-2px);
+    }
+    .punch-btn-out {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: white;
+    }
+    .punch-btn-out:hover:not(:disabled) {
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+      transform: translateY(-2px);
+    }
+    .punch-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    /* Tables */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--slate-200);
+      border-radius: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      text-align: left;
+    }
+    th {
+      background: var(--slate-100);
+      color: var(--slate-700);
+      font-weight: 700;
+      padding: 0.65rem 0.85rem;
+      border-bottom: 1px solid var(--slate-200);
+      white-space: nowrap;
+    }
+    td {
+      padding: 0.65rem 0.85rem;
+      border-bottom: 1px solid var(--slate-200);
+      color: var(--slate-700);
+      white-space: nowrap;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--slate-50); }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+    .badge-in { background: #d1fae5; color: #065f46; }
+    .badge-out { background: #fee2e2; color: #991b1b; }
+    .badge-done { background: #e0e7ff; color: #3730a3; }
+    .badge-open { background: #fef3c7; color: #92400e; }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: 50;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+      max-width: 520px;
+      padding: 1.5rem;
+      animation: modalPop 0.2s ease-out;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    @keyframes modalPop {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--slate-200);
+    }
+    .modal-title { font-weight: 800; font-size: 1.1rem; color: var(--dark); }
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--slate-400);
+      cursor: pointer;
+      line-height: 1;
+    }
+    .modal-close:hover { color: var(--danger); }
+
+    /* Toast Notifications */
+    .toast-container {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      pointer-events: none;
+    }
+    .toast {
+      background: var(--dark);
+      color: white;
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      box-shadow: var(--shadow-lg);
+      pointer-events: auto;
+      animation: toastIn 0.2s ease-out;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .toast-success { background: #065f46; border-left: 4px solid #10b981; }
+    .toast-danger { background: #7f1d1d; border-left: 4px solid #ef4444; }
+    .toast-warning { background: #78350f; border-left: 4px solid #f59e0b; }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Login Screen Container */
+    .login-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    }
+    .login-box {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 2.25rem;
+      width: 100%;
+      max-width: 440px;
+      box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.3);
+    }
+    .login-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .login-logo {
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--primary);
+      letter-spacing: -1px;
+    }
+    .login-sub {
+      color: var(--slate-500);
+      font-size: 0.85rem;
+      margin-top: 0.25rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ========================================== -->
+  <!-- 1. LOGIN SCREEN                           -->
+  <!-- ========================================== -->
+  <div id="loginView" class="login-wrapper">
+    <div class="login-box">
+      <div class="login-header">
+        <div class="login-logo">DanGeo <span class="brand-badge">Puantaj</span></div>
+        <p class="login-sub">GPS Geofence Devam Takip & Mesai Portalı</p>
+        <div style="margin-top: 0.5rem;">
+          <span id="loginCloudBadge" class="cloud-badge cloud-local" onclick="openSettingsModal()">
+            💾 Yerel Mod (Bulut Bağla)
+          </span>
+        </div>
+      </div>
+
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label class="form-label">Kullanıcı Adı</label>
+          <input type="text" id="loginUsername" class="form-control" placeholder="Örn: admin veya mehmet.yilmaz" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Şifre / PIN Kodu</label>
+          <input type="password" id="loginPassword" class="form-control" placeholder="PIN kodunuzu giriniz" required autocomplete="current-password">
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem; padding: 0.8rem;">
+          Giriş Yap
+        </button>
+
+        <div style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--slate-200); font-size: 0.78rem; color: var(--slate-500); text-align: center;">
+          <p><strong>Hazır Giriş Bilgileri:</strong></p>
+          <p>👑 Master Admin: <code>admin</code> / PIN: <code>admin1234</code></p>
+          <p>👷 Çalışan: <code>mehmet.yilmaz</code> / PIN: <code>1234</code></p>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 2. MAIN APPLICATION (LOGGED IN)           -->
+  <!-- ========================================== -->
+  <div id="appView" style="display: none; flex-direction: column; min-height: 100vh;">
+    
+    <!-- Top Navbar -->
+    <header class="navbar">
+      <a href="#" class="brand">
+        DanGeo <span class="brand-badge">Puantaj</span>
+      </a>
+
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <span id="navCloudBadge" class="cloud-badge cloud-local" onclick="openSettingsModal()" title="Google Sheets Bulut Ayarlarını Aç">
+          ☁️ Bulut Durumu
+        </span>
+
+        <div class="user-pill">
+          <span id="navRoleBadge" class="role-badge role-emp">ÇALIŞAN</span>
+          <span id="navUserName" style="font-weight: 600;">Mehmet Yılmaz</span>
+        </div>
+
+        <button class="btn-logout" title="Çıkış Yap" onclick="handleLogout()">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Subnav Tabs -->
+    <nav class="subnav">
+      <button class="subnav-tab active" data-tab="tabPunch" onclick="switchTab('tabPunch')">⏱ Giriş / Çıkış & Grafik</button>
+      <button class="subnav-tab" data-tab="tabMyLogs" onclick="switchTab('tabMyLogs')">📋 Kayıtlarım</button>
+      <!-- Admin Only Tabs -->
+      <button class="subnav-tab admin-only" data-tab="tabAdminUsers" onclick="switchTab('tabAdminUsers')">👥 Kullanıcı Yönetimi (Admin)</button>
+      <button class="subnav-tab admin-only" data-tab="tabAdminLogs" onclick="switchTab('tabAdminLogs')">📑 Tüm Kayıtlar & Puantaj</button>
+      <button class="subnav-tab admin-only" data-tab="tabAdminLocations" onclick="switchTab('tabAdminLocations')">📍 Lokasyon / Geofence</button>
+      <button class="subnav-tab admin-only" data-tab="tabAdminCloud" onclick="openSettingsModal()">⚙️ Google Sheets Bulut Ayarı</button>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="container">
+
+      <!-- ======================================== -->
+      <!-- TAB 1: PUNCH & MONTHLY CHART            -->
+      <!-- ======================================== -->
+      <section id="tabPunch" class="view-section active">
+        
+        <!-- Live Geofence Clock Card -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              Canlı Geofence Devam Kaydı
+            </span>
+            <div id="liveTimeClock" style="font-weight: 700; color: var(--slate-600); font-size: 0.95rem;">--:--:--</div>
+          </div>
+
+          <!-- Geofence & Location Selector -->
+          <div class="geofence-box">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: gap; gap: 0.5rem;">
+              <div style="flex: 1; min-width: 200px;">
+                <label class="form-label">Çalışma Lokasyonu / Fabrika:</label>
+                <select id="punchLocationSelect" class="form-control" onchange="evaluateGeofence()">
+                  <!-- Populated dynamically -->
+                </select>
+              </div>
+
+              <div style="display: flex; gap: 0.5rem; align-items: flex-end;">
+                <button class="btn btn-secondary btn-sm" onclick="fetchLiveGPS()" title="GPS Koordinatlarını Yenile">
+                  🔄 Konumu Yenile
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="simulateInsideGeofence()" title="Test için fabrikanın içine ışınlan">
+                  🎯 Fabrika İçi Simüle Et
+                </button>
+              </div>
+            </div>
+
+            <!-- GPS Status Banner -->
+            <div id="geofenceBanner" class="geofence-status-banner status-locating">
+              <span>📡 GPS Konumu alınıyor... Lütfen bekleyiniz.</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--slate-600);">
+              <span id="coordsDisplay">Cihaz Koordinatı: Alınmadı</span>
+              <span id="distanceDisplay">Mesafe: Hesaplanıyor...</span>
+            </div>
+          </div>
+
+          <!-- Current Punch State & Warning -->
+          <div id="punchStateAlert" style="margin-bottom: 1rem; padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.88rem; font-weight: 600; display: flex; align-items: center; justify-content: space-between; background: var(--slate-100); color: var(--slate-700);">
+            <span id="punchStateText">Durum yükleniyor...</span>
+            <span id="lastPunchBadge" class="badge">--</span>
+          </div>
+
+          <!-- Big In/Out Action Buttons (Toggle-Enforced) -->
+          <div class="punch-actions">
+            <button id="btnPunchIn" class="punch-btn punch-btn-in" onclick="submitPunch('GİRİŞ')">
+              <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path></svg>
+              <span>VARDİYA GİRİŞ</span>
+              <small style="font-size: 0.72rem; font-weight: 500; opacity: 0.9;">Mesai Başlangıcı</small>
+            </button>
+
+            <button id="btnPunchOut" class="punch-btn punch-btn-out" onclick="submitPunch('ÇIKIŞ')">
+              <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+              <span>VARDİYA ÇIKIŞ</span>
+              <small style="font-size: 0.72rem; font-weight: 500; opacity: 0.9;">Mesai Bitişi</small>
+            </button>
+          </div>
+
+          <div style="font-size: 0.75rem; color: var(--slate-500); text-align: center;">
+            🛡️ <em>Sahtekarlık Koruması: Sistem saat, tarih ve GPS donanım verilerini manipüle edilemez biçimde anlık kaydeder.</em>
+          </div>
+        </div>
+
+        <!-- Monthly Working Hours Chart (Requested Feature) -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              Aylık Çalışma Grafiği & Mesai Dağılımı
+            </span>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <select id="chartMonthSelect" class="form-control" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;" onchange="renderMonthlyChart()">
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+          </div>
+
+          <!-- Summary Metric Cards -->
+          <div class="grid-4" style="margin-bottom: 1.25rem;">
+            <div class="metric-card">
+              <span class="metric-title">Toplam Çalışma Günü</span>
+              <span id="metricDays" class="metric-value">0</span>
+              <span class="metric-subtitle">Bu ay tamamlanan gün</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-title">Normal Mesai (8h Baz)</span>
+              <span id="metricRegularHours" class="metric-value" style="color: var(--primary);">0.0h</span>
+              <span class="metric-subtitle">Standart vardiya süresi</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-title">Ek Mesai (Fazla Mesai)</span>
+              <span id="metricOvertimeHours" class="metric-value" style="color: #f97316;">0.0h</span>
+              <span class="metric-subtitle">8 saati aşan çalışmalar</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-title">Toplam Net Çalışma</span>
+              <span id="metricTotalHours" class="metric-value" style="color: var(--success);">0.0h</span>
+              <span class="metric-subtitle">Mesai + Ek Mesai</span>
+            </div>
+          </div>
+
+          <!-- Chart.js Canvas -->
+          <div style="position: relative; height: 320px; width: 100%;">
+            <canvas id="monthlyAttendanceChart"></canvas>
+          </div>
+
+          <div style="margin-top: 0.75rem; font-size: 0.78rem; color: var(--slate-500); display: flex; justify-content: space-between;">
+            <span>■ Mavi: Normal Mesai (En fazla 8 Saat/gün)</span>
+            <span>■ Turuncu: Ek Mesai (8 saatin üzerindeki süre)</span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ======================================== -->
+      <!-- TAB 2: MY LOGS (CURRENT USER HISTORY)   -->
+      <!-- ======================================== -->
+      <section id="tabMyLogs" class="view-section">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Geçmiş Devam ve Giriş/Çıkış Kayıtlarım</span>
+            <button class="btn btn-secondary btn-sm" onclick="syncWithCloudAndRefresh()">🔄 Yenile</button>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Tarih</th>
+                  <th>Giriş Saati</th>
+                  <th>Çıkış Saati</th>
+                  <th>Toplam Süre</th>
+                  <th>Normal Mesai (8h)</th>
+                  <th>Ek Mesai</th>
+                  <th>Durum</th>
+                  <th>Lokasyon</th>
+                </tr>
+              </thead>
+              <tbody id="myLogsTableBody">
+                <!-- Dynamically loaded -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================== -->
+      <!-- TAB 3: ADMIN USER MANAGEMENT (MASTER)   -->
+      <!-- ======================================== -->
+      <section id="tabAdminUsers" class="view-section">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <span class="card-title">👥 Kullanıcı Yönetim Masası (Master Admin)</span>
+              <p style="font-size: 0.8rem; color: var(--slate-500); margin-top: 0.2rem;">
+                Tüm personellerin kullanıcı adı, PIN kodu, rol ve yetkilerini görüntüleyebilir, düzenleyebilir veya yeni üye ekleyebilirsiniz. Veriler anlık olarak Google Sheets'e kaydedilir.
+              </p>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="btn btn-secondary btn-sm" onclick="syncWithCloudAndRefresh()">🔄 E-Tablo ile Senkronize Et</button>
+              <button class="btn btn-primary" onclick="openUserModal()">
+                ➕ Yeni Çalışan Ekle
+              </button>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Sicil No</th>
+                  <th>Ad Soyad</th>
+                  <th>Kullanıcı Adı</th>
+                  <th>Şifre / PIN</th>
+                  <th>Departman</th>
+                  <th>Rol</th>
+                  <th>Durum</th>
+                  <th>İşlemler</th>
+                </tr>
+              </thead>
+              <tbody id="adminUsersTableBody">
+                <!-- Dynamically loaded -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================== -->
+      <!-- TAB 4: ADMIN LOGS & EXCEL EXPORT        -->
+      <!-- ======================================== -->
+      <section id="tabAdminLogs" class="view-section">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <span class="card-title">📑 Tüm Çalışan Devam Çizelgesi & Puantaj Raporu</span>
+              <p style="font-size: 0.8rem; color: var(--slate-500); margin-top: 0.2rem;">
+                Tüm personellerin günlük mesai ve ek mesai dökümü. Doğrudan Microsoft Excel (.xlsx) formatında indirebilirsiniz.
+              </p>
+            </div>
+            
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <button class="btn btn-secondary btn-sm" onclick="syncWithCloudAndRefresh()">🔄 Yenile</button>
+              <button class="btn btn-success" onclick="exportPayrollToExcel()">
+                📥 Excel İndir (.xlsx)
+              </button>
+            </div>
+          </div>
+
+          <!-- Filter Bar -->
+          <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: flex-end;">
+            <div>
+              <label class="form-label">Çalışan Filtresi:</label>
+              <select id="adminFilterUser" class="form-control" style="min-width: 180px;" onchange="renderAdminLogsTable()">
+                <option value="ALL">Tüm Personel</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Ay Filtresi:</label>
+              <select id="adminFilterMonth" class="form-control" style="min-width: 150px;" onchange="renderAdminLogsTable()">
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Tarih</th>
+                  <th>Personel</th>
+                  <th>Giriş</th>
+                  <th>Çıkış</th>
+                  <th>Toplam Saat</th>
+                  <th>Normal Mesai (8h)</th>
+                  <th>Ek Mesai</th>
+                  <th>Durum</th>
+                  <th>Lokasyon</th>
+                  <th>GPS / Geofence</th>
+                </tr>
+              </thead>
+              <tbody id="adminLogsTableBody">
+                <!-- Dynamically loaded -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================== -->
+      <!-- TAB 5: ADMIN LOCATIONS / GEOFENCE SETUP -->
+      <!-- ======================================== -->
+      <section id="tabAdminLocations" class="view-section">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <span class="card-title">📍 Fabrika ve Tesis Geofence Perimetreleri</span>
+              <p style="font-size: 0.8rem; color: var(--slate-500); margin-top: 0.2rem;">
+                GPS tabanlı izin verilen çalışma sahaları ve izin verilen maksimum yarıçap (metre).
+              </p>
+            </div>
+            <button class="btn btn-primary" onclick="openLocationModal()">
+              ➕ Yeni Lokasyon Ekle
+            </button>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Tesis Adı</th>
+                  <th>Enlem (Latitude)</th>
+                  <th>Boylam (Longitude)</th>
+                  <th>İzin Verilen Yarıçap</th>
+                  <th>Durum</th>
+                  <th>İşlemler</th>
+                </tr>
+              </thead>
+              <tbody id="adminLocationsTableBody">
+                <!-- Dynamically loaded -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODALS                                     -->
+  <!-- ========================================== -->
+
+  <!-- Cloud Settings Modal -->
+  <div id="settingsModal" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">☁️ Google Sheets Bulut Bağlantısı</span>
+        <button class="modal-close" onclick="closeSettingsModal()">&times;</button>
+      </div>
+      <div>
+        <p style="font-size: 0.85rem; color: var(--slate-600); margin-bottom: 1rem;">
+          Tüm telefonların ve bilgisayarların aynı Google E-Tablo'ya anlık bağlanması için 
+          <strong>Google Apps Script Web Uygulaması URL'nizi</strong> buraya yapıştırın.
+        </p>
+
+        <div class="form-group">
+          <label class="form-label">Google Apps Script Web App URL</label>
+          <input type="url" id="settingsSheetsUrl" class="form-control" placeholder="https://script.google.com/macros/s/.../exec">
+        </div>
+
+        <div style="background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: 8px; padding: 0.75rem; font-size: 0.78rem; color: var(--slate-600); margin-bottom: 1rem;">
+          <p><strong>3 Adımda URL Alma:</strong></p>
+          <ol style="margin-left: 1.2rem; line-height: 1.5; margin-top: 0.25rem;">
+            <li>Google E-Tablonuzda: <em>Uzantılar -> Apps Script</em> açıp <code>Code.gs</code> kodunu yapıştırın.</li>
+            <li><em>Dağıt -> Yeni Dağıtım -> Web Uygulaması</em> seçin.</li>
+            <li>Erişimi: <strong>"Herkes" (Anyone)</strong> yapıp Dağıt deyin ve verilen Web App URL'sini buraya yapıştırın.</li>
+          </ol>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeSettingsModal()">Kapat</button>
+          <button type="button" class="btn btn-primary" onclick="saveSettingsModal()">Bağlantıyı Kaydet & Test Et</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Edit / Add Modal -->
+  <div id="userModal" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <span id="userModalTitle" class="modal-title">Yeni Çalışan Ekle</span>
+        <button class="modal-close" onclick="closeUserModal()">&times;</button>
+      </div>
+      <form id="userModalForm" onsubmit="saveUserModal(event)">
+        <input type="hidden" id="modalUserId">
+
+        <div class="form-group">
+          <label class="form-label">Ad Soyad</label>
+          <input type="text" id="modalFullName" class="form-control" placeholder="Örn: Ali Vural" required>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Kullanıcı Adı (Benzersiz)</label>
+            <input type="text" id="modalUsername" class="form-control" placeholder="ali.vural" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Şifre / PIN Kodu</label>
+            <input type="text" id="modalPin" class="form-control" placeholder="Örn: 9876" required>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Sicil No (HR Code)</label>
+            <input type="text" id="modalEmpCode" class="form-control" placeholder="HR-00155" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Departman / Vardiya</label>
+            <input type="text" id="modalDepartment" class="form-control" placeholder="Üretim - B" required>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Sistem Rolü</label>
+            <select id="modalRole" class="form-control">
+              <option value="EMPLOYEE">Çalışan (Employee)</option>
+              <option value="ADMIN">Master Admin (Yönetici)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Durum</label>
+            <select id="modalIsActive" class="form-control">
+              <option value="true">Aktif</option>
+              <option value="false">Pasif (Giriş Yapamaz)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.25rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeUserModal()">İptal</button>
+          <button type="submit" class="btn btn-primary">Kaydet (Buluta Gönder)</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Location Edit / Add Modal -->
+  <div id="locationModal" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <span id="locationModalTitle" class="modal-title">Yeni Lokasyon / Geofence Ekle</span>
+        <button class="modal-close" onclick="closeLocationModal()">&times;</button>
+      </div>
+      <form id="locationModalForm" onsubmit="saveLocationModal(event)">
+        <input type="hidden" id="modalLocId">
+
+        <div class="form-group">
+          <label class="form-label">Tesis / Fabrika Adı</label>
+          <input type="text" id="modalLocName" class="form-control" placeholder="Örn: Tuzla Kimya Tesisleri" required>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Enlem (Latitude)</label>
+            <input type="number" step="any" id="modalLocLat" class="form-control" placeholder="40.98765" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Boylam (Longitude)</label>
+            <input type="number" step="any" id="modalLocLng" class="form-control" placeholder="29.12345" required>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="fillModalCoordsWithMyGPS()">
+            📍 Şu Anki GPS Konumumu Buraya Yapıştır
+          </button>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">İzin Verilen Yarıçap (Metre)</label>
+            <input type="number" id="modalLocRadius" class="form-control" value="150" min="10" max="10000" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Durum</label>
+            <select id="modalLocActive" class="form-control">
+              <option value="true">Aktif</option>
+              <option value="false">Pasif</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.25rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeLocationModal()">İptal</button>
+          <button type="submit" class="btn btn-primary">Kaydet</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- APPLICATION SCRIPT & DATABASE LOGIC        -->
+  <!-- ========================================== -->
+  <script>
+    const DEFAULT_GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbzOm_T1cWpF9s7igM5DQI2KjkFSetpDsr1zivSlR0VlwbC5ZZGKmnN2H9mYdlcJaTXyyQ/exec";
+
+    /* Global Application State */
+    const APP_STATE = {
+      currentUser: null,
+      deviceCoords: null, // { latitude, longitude, accuracy }
+      distanceMeters: null,
+      isInsideGeofence: false,
+      locations: [],
+      chartInstance: null,
+      googleSheetsUrl: localStorage.getItem("dangeo_sheets_url") || DEFAULT_GOOGLE_SHEETS_URL
+    };
+
+    /* ======================================================== */
+    /* 1. GOOGLE SHEETS CLOUD SYNC & REST API                   */
+    /* ======================================================== */
+    async function fetchFromGoogleSheets() {
+      if (!APP_STATE.googleSheetsUrl) return null;
+
+      try {
+        const url = APP_STATE.googleSheetsUrl + (APP_STATE.googleSheetsUrl.includes("?") ? "&" : "?") + "action=getInitialData";
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data && data.success) {
+          // Sync into IndexedDB cache
+          if (data.users && data.users.length > 0) {
+            for (const u of data.users) {
+              await dbPut("users", {
+                user_id: u.User_ID || ("usr-" + u.Username),
+                username: String(u.Username).toLowerCase(),
+                password_pin: String(u.Password_PIN),
+                full_name: u.Full_Name,
+                employee_code: u.Employee_Code,
+                department: u.Department,
+                email: u.Email,
+                role: u.Role || "EMPLOYEE",
+                is_active: u.Is_Active === true || String(u.Is_Active).toUpperCase() === "TRUE"
+              });
+            }
+          }
+
+          if (data.locations && data.locations.length > 0) {
+            for (const loc of data.locations) {
+              let lat = 40.98765, lng = 29.12345;
+              if (loc.Center_Coordinates && String(loc.Center_Coordinates).includes(",")) {
+                const parts = String(loc.Center_Coordinates).split(",");
+                lat = parseFloat(parts[0].trim());
+                lng = parseFloat(parts[1].trim());
+              }
+              await dbPut("locations", {
+                location_id: loc.Location_ID,
+                name: loc.Location_Name,
+                latitude: lat,
+                longitude: lng,
+                allowed_radius_meters: parseInt(loc.Allowed_Radius_Meters) || 150,
+                is_active: loc.Is_Active === true || String(loc.Is_Active).toUpperCase() === "TRUE"
+              });
+            }
+          }
+
+          if (data.logs && data.logs.length > 0) {
+            for (const l of data.logs) {
+              await dbPut("attendance_logs", {
+                log_id: l.Log_ID,
+                username: String(l.Username_Input).toLowerCase(),
+                full_name: l.Resolved_Full_Name,
+                transaction_type: l.Transaction_Type,
+                log_date: String(l.Log_Date).split(" ")[0],
+                log_timestamp: l.Log_Timestamp,
+                target_location_id: l.Target_Location_ID,
+                target_location_name: "Tesis",
+                distance_meters: parseFloat(l.Distance_Meters) || 0,
+                geofence_status: l.Geofence_Status,
+                audit_notes: l.Audit_Notes
+              });
+            }
+          }
+
+          return data;
+        }
+      } catch (err) {
+        console.warn("Google Sheets Cloud Sync Hatası (Yerel veriler kullanılacak):", err);
+      }
+      return null;
+    }
+
+    async function postToGoogleSheets(action, payloadData) {
+      if (!APP_STATE.googleSheetsUrl) return false;
+
+      try {
+        const bodyStr = JSON.stringify({ action: action, data: payloadData });
+        // Using text/plain to avoid CORS preflight options block in Google Apps Script
+        const res = await fetch(APP_STATE.googleSheetsUrl, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: bodyStr
+        });
+        const json = await res.json();
+        return json.success;
+      } catch (err) {
+        console.warn("Google Sheets POST Hatası:", err);
+        return false;
+      }
+    }
+
+    function updateCloudBadges() {
+      const badges = [document.getElementById("loginCloudBadge"), document.getElementById("navCloudBadge")];
+      badges.forEach(b => {
+        if (!b) return;
+        if (APP_STATE.googleSheetsUrl) {
+          b.className = "cloud-badge cloud-connected";
+          b.innerHTML = "☁️ Google Sheets: Bağlı";
+        } else {
+          b.className = "cloud-badge cloud-local";
+          b.innerHTML = "💾 Yerel Mod (Bulut Bağla)";
+        }
+      });
+    }
+
+    function openSettingsModal() {
+      document.getElementById("settingsSheetsUrl").value = APP_STATE.googleSheetsUrl;
+      document.getElementById("settingsModal").classList.add("open");
+    }
+
+    function closeSettingsModal() {
+      document.getElementById("settingsModal").classList.remove("open");
+    }
+
+    async function saveSettingsModal() {
+      const url = document.getElementById("settingsSheetsUrl").value.trim();
+      APP_STATE.googleSheetsUrl = url;
+      localStorage.setItem("dangeo_sheets_url", url);
+      updateCloudBadges();
+
+      if (url) {
+        showToast("Google Sheets bağlantısı test ediliyor...", "info");
+        const cloudData = await fetchFromGoogleSheets();
+        if (cloudData && cloudData.success) {
+          showToast("✅ Google Sheets bağlantısı başarılı! Veriler senkronize edildi.", "success");
+          closeSettingsModal();
+          if (APP_STATE.currentUser) {
+            setupAppUI();
+          }
+        } else {
+          showToast("⚠️ URL kaydedildi ancak Google Sheets'e erişilemedi. Lütfen Apps Script dağıtımında erişimin 'Herkes' (Anyone) olduğundan emin olun.", "warning");
+        }
+      } else {
+        showToast("Yerel moda geçildi.", "info");
+        closeSettingsModal();
+      }
+    }
+
+    async function syncWithCloudAndRefresh() {
+      if (APP_STATE.googleSheetsUrl) {
+        showToast("Google Sheets ile senkronize ediliyor...", "info");
+        await fetchFromGoogleSheets();
+        showToast("Senkronizasyon tamamlandı.", "success");
+      }
+      renderMyLogsTable();
+      renderAdminUsersTable();
+      renderAdminLogsTable();
+      renderMonthlyChart();
+    }
+
+    /* ======================================================== */
+    /* 2. INDEXEDDB PERSISTENCE LAYER                           */
+    /* ======================================================== */
+    const DB_NAME = "DanGeoAttendanceDB";
+    const DB_VERSION = 1;
+    let db = null;
+
+    function initDatabase() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+        request.onupgradeneeded = (e) => {
+          const database = e.target.result;
+          
+          // Users store
+          if (!database.objectStoreNames.contains("users")) {
+            const userStore = database.createObjectStore("users", { keyPath: "user_id" });
+            userStore.createIndex("username", "username", { unique: true });
+          }
+
+          // Locations store
+          if (!database.objectStoreNames.contains("locations")) {
+            database.createObjectStore("locations", { keyPath: "location_id" });
+          }
+
+          // Attendance logs store
+          if (!database.objectStoreNames.contains("attendance_logs")) {
+            const logStore = database.createObjectStore("attendance_logs", { keyPath: "log_id" });
+            logStore.createIndex("username", "username", { unique: false });
+            logStore.createIndex("log_date", "log_date", { unique: false });
+            logStore.createIndex("log_timestamp", "log_timestamp", { unique: false });
+          }
+        };
+
+        request.onsuccess = (e) => {
+          db = e.target.result;
+          seedInitialDataIfNeeded().then(resolve);
+        };
+
+        request.onerror = (e) => {
+          console.error("IndexedDB error:", e);
+          reject(e);
+        };
+      });
+    }
+
+    /* Seed database with initial users, locations, and realistic demo logs */
+    async function seedInitialDataIfNeeded() {
+      // First try fetching from cloud if URL exists
+      if (APP_STATE.googleSheetsUrl) {
+        const cloudData = await fetchFromGoogleSheets();
+        if (cloudData && cloudData.users && cloudData.users.length > 0) {
+          return;
+        }
+      }
+
+      const usersCount = await countStoreItems("users");
+      if (usersCount === 0) {
+        console.log("Seeding initial database...");
+        
+        // 1. Initial Users (Master Admin + Employees)
+        const initialUsers = [
+          {
+            user_id: "usr-admin",
+            username: "admin",
+            password_pin: "admin1234",
+            full_name: "Sistem Yöneticisi (Master)",
+            employee_code: "SYS-001",
+            department: "Yönetim",
+            role: "ADMIN",
+            is_active: true,
+            created_at: new Date().toISOString()
+          },
+          {
+            user_id: "usr-mehmet",
+            username: "mehmet.yilmaz",
+            password_pin: "1234",
+            full_name: "Mehmet Yılmaz",
+            employee_code: "HR-00142",
+            department: "Üretim - Vardiya A",
+            role: "EMPLOYEE",
+            is_active: true,
+            created_at: new Date().toISOString()
+          },
+          {
+            user_id: "usr-ayse",
+            username: "ayse.kaya",
+            password_pin: "5678",
+            full_name: "Ayşe Kaya",
+            employee_code: "HR-00143",
+            department: "Kalite Kontrol",
+            role: "EMPLOYEE",
+            is_active: true,
+            created_at: new Date().toISOString()
+          }
+        ];
+
+        for (const u of initialUsers) {
+          await dbPut("users", u);
+          if (APP_STATE.googleSheetsUrl) {
+            postToGoogleSheets("saveUser", u);
+          }
+        }
+
+        // 2. Initial Locations
+        const initialLocations = [
+          {
+            location_id: "loc-1",
+            name: "Ana Fabrika - Tesis A (Kartal/İst)",
+            latitude: 40.98765,
+            longitude: 29.12345,
+            allowed_radius_meters: 250,
+            is_active: true
+          },
+          {
+            location_id: "loc-2",
+            name: "Lojistik Depo - B Blok (Tuzla/İst)",
+            latitude: 40.86543,
+            longitude: 29.35124,
+            allowed_radius_meters: 300,
+            is_active: true
+          }
+        ];
+
+        for (const loc of initialLocations) {
+          await dbPut("locations", loc);
+          if (APP_STATE.googleSheetsUrl) {
+            postToGoogleSheets("saveLocation", loc);
+          }
+        }
+
+        // 3. Seed Realistic Monthly Attendance Data (Including the 17-hour overtime shift example!)
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = now.getMonth(); // 0-based
+        
+        // Days 1 to 10 sample history
+        const demoShifts = [
+          { day: 1, inH: 8, inM: 0, outH: 17, outM: 0 },   // 9 hours -> 8h mesai + 1h ek
+          { day: 2, inH: 7, inM: 0, outH: 24, outM: 0 },   // 17 hours -> 8h mesai + 9h ek! (Requested Example)
+          { day: 3, inH: 8, inM: 30, outH: 15, outM: 0 },  // 6.5 hours -> 6.5h mesai + 0h ek
+          { day: 4, inH: 8, inM: 0, outH: 18, outM: 30 },  // 10.5 hours -> 8h mesai + 2.5h ek
+          { day: 5, inH: 8, inM: 0, outH: 16, outM: 30 },  // 8.5 hours -> 8h mesai + 0.5h ek
+          { day: 8, inH: 7, inM: 30, outH: 19, outM: 0 },  // 11.5 hours -> 8h mesai + 3.5h ek
+          { day: 9, inH: 8, inM: 0, outH: 17, outM: 0 },   // 9 hours -> 8h mesai + 1h ek
+          { day: 10, inH: 8, inM: 0, outH: 16, outM: 0 }   // 8 hours -> 8h mesai + 0h ek
+        ];
+
+        for (const shift of demoShifts) {
+          const shiftDate = new Date(year, month, shift.day);
+          const dateStr = shiftDate.toISOString().split("T")[0];
+
+          const tIn = new Date(year, month, shift.day, shift.inH, shift.inM, 0);
+          const tOut = new Date(year, month, shift.day, shift.outH, shift.outM, 0);
+
+          // Punch IN
+          await dbPut("attendance_logs", {
+            log_id: "demo-in-" + shift.day,
+            username: "mehmet.yilmaz",
+            full_name: "Mehmet Yılmaz",
+            transaction_type: "GİRİŞ",
+            log_date: dateStr,
+            log_timestamp: tIn.toISOString(),
+            latitude: 40.98768,
+            longitude: 29.12348,
+            target_location_id: "loc-1",
+            target_location_name: "Ana Fabrika - Tesis A (Kartal/İst)",
+            distance_meters: 4.2,
+            geofence_status: "VERIFIED_INSIDE",
+            audit_notes: "Sistem başlangıç verisi"
+          });
+
+          // Punch OUT
+          await dbPut("attendance_logs", {
+            log_id: "demo-out-" + shift.day,
+            username: "mehmet.yilmaz",
+            full_name: "Mehmet Yılmaz",
+            transaction_type: "ÇIKIŞ",
+            log_date: dateStr,
+            log_timestamp: tOut.toISOString(),
+            latitude: 40.98767,
+            longitude: 29.12347,
+            target_location_id: "loc-1",
+            target_location_name: "Ana Fabrika - Tesis A (Kartal/İst)",
+            distance_meters: 3.8,
+            geofence_status: "VERIFIED_INSIDE",
+            audit_notes: "Sistem başlangıç verisi"
+          });
+        }
+      }
+    }
+
+    /* Helper DB Wrappers */
+    function dbPut(storeName, data) {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(storeName, "readwrite");
+        const store = tx.objectStore(storeName);
+        const req = store.put(data);
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = (e) => reject(e);
+      });
+    }
+
+    function dbGetAll(storeName) {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(storeName, "readonly");
+        const store = tx.objectStore(storeName);
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = (e) => reject(e);
+      });
+    }
+
+    function dbGet(storeName, key) {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(storeName, "readonly");
+        const store = tx.objectStore(storeName);
+        const req = store.get(key);
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = (e) => reject(e);
+      });
+    }
+
+    function dbDelete(storeName, key) {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(storeName, "readwrite");
+        const store = tx.objectStore(storeName);
+        const req = store.delete(key);
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = (e) => reject(e);
+      });
+    }
+
+    function countStoreItems(storeName) {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(storeName, "readonly");
+        const store = tx.objectStore(storeName);
+        const req = store.count();
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = (e) => reject(e);
+      });
+    }
+
+    /* ======================================================== */
+    /* 3. AUTHENTICATION & SESSION MANAGEMENT                  */
+    /* ======================================================== */
+    async function handleLogin(e) {
+      e.preventDefault();
+      const usernameInput = document.getElementById("loginUsername").value.trim().toLowerCase();
+      const passwordInput = document.getElementById("loginPassword").value.trim();
+
+      // If connected to cloud, refresh users first to ensure latest password
+      if (APP_STATE.googleSheetsUrl) {
+        await fetchFromGoogleSheets();
+      }
+
+      const users = await dbGetAll("users");
+      const user = users.find(u => u.username.toLowerCase() === usernameInput);
+
+      if (!user) {
+        showToast("Geçersiz Kullanıcı Adı! Kullanıcı bulunamadı.", "danger");
+        return;
+      }
+
+      if (!user.is_active) {
+        showToast("Hesabınız pasife alınmış. Lütfen yöneticiniz ile görüşün.", "danger");
+        return;
+      }
+
+      if (user.password_pin !== passwordInput) {
+        showToast("Hatalı Kullanıcı Adı veya Şifre/PIN! Lütfen kontrol ediniz.", "danger");
+        return;
+      }
+
+      // Successful Login
+      APP_STATE.currentUser = user;
+      sessionStorage.setItem("dangeo_user", JSON.stringify(user));
+      showToast(`Hoş geldiniz, ${user.full_name}!`, "success");
+      setupAppUI();
+    }
+
+    function handleLogout() {
+      APP_STATE.currentUser = null;
+      sessionStorage.removeItem("dangeo_user");
+      document.getElementById("appView").style.display = "none";
+      document.getElementById("loginView").style.display = "flex";
+      document.getElementById("loginPassword").value = "";
+      showToast("Başarıyla çıkış yapıldı.", "warning");
+    }
+
+    function checkExistingSession() {
+      const stored = sessionStorage.getItem("dangeo_user");
+      if (stored) {
+        try {
+          APP_STATE.currentUser = JSON.parse(stored);
+          setupAppUI();
+        } catch(e) {
+          sessionStorage.removeItem("dangeo_user");
+        }
+      }
+    }
+
+    /* ======================================================== */
+    /* 4. APPLICATION UI SETUP & NAVIGATION                     */
+    /* ======================================================== */
+    async function setupAppUI() {
+      const u = APP_STATE.currentUser;
+      if (!u) return;
+
+      document.getElementById("loginView").style.display = "none";
+      document.getElementById("appView").style.display = "flex";
+
+      // Set Navbar User Info
+      document.getElementById("navUserName").textContent = u.full_name;
+      const roleBadge = document.getElementById("navRoleBadge");
+      if (u.role === "ADMIN") {
+        roleBadge.textContent = "MASTER ADMİN";
+        roleBadge.className = "role-badge role-admin";
+      } else {
+        roleBadge.textContent = "ÇALIŞAN";
+        roleBadge.className = "role-badge role-emp";
+      }
+
+      updateCloudBadges();
+
+      // Control Admin-Only Elements
+      const adminTabs = document.querySelectorAll(".admin-only");
+      adminTabs.forEach(el => {
+        el.style.display = (u.role === "ADMIN") ? "inline-block" : "none";
+      });
+
+      // Load Locations into Punch dropdown
+      await loadLocationsDropdown();
+
+      // Populate Month Selectors
+      populateMonthDropdowns();
+
+      // Start live clock
+      startClock();
+
+      // Request GPS
+      fetchLiveGPS();
+
+      // Evaluate Punch State for current user
+      await updatePunchStateUI();
+
+      // Render Monthly Chart
+      await renderMonthlyChart();
+
+      // Switch to first tab
+      switchTab("tabPunch");
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll(".subnav-tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".view-section").forEach(s => s.classList.remove("active"));
+
+      const targetTabBtn = document.querySelector(`.subnav-tab[data-tab="${tabId}"]`);
+      if (targetTabBtn) targetTabBtn.classList.add("active");
+
+      const targetSection = document.getElementById(tabId);
+      if (targetSection) targetSection.classList.add("active");
+
+      // Tab specific refresh
+      if (tabId === "tabPunch") {
+        updatePunchStateUI();
+        renderMonthlyChart();
+      } else if (tabId === "tabMyLogs") {
+        renderMyLogsTable();
+      } else if (tabId === "tabAdminUsers") {
+        renderAdminUsersTable();
+      } else if (tabId === "tabAdminLogs") {
+        renderAdminLogsTable();
+      } else if (tabId === "tabAdminLocations") {
+        renderAdminLocationsTable();
+      }
+    }
+
+    function startClock() {
+      setInterval(() => {
+        const now = new Date();
+        const timeEl = document.getElementById("liveTimeClock");
+        if (timeEl) {
+          timeEl.textContent = now.toLocaleDateString("tr-TR", { weekday: 'short', year: 'numeric', month: 'long', day: 'numeric' }) + " " + now.toLocaleTimeString("tr-TR");
+        }
+      }, 1000);
+    }
+
+    /* ======================================================== */
+    /* 5. GPS & GEOFENCE ENGINE                                 */
+    /* ======================================================== */
+    function calculateDistanceMeters(lat1, lon1, lat2, lon2) {
+      const R = 6371e3; // Earth radius in meters
+      const φ1 = lat1 * Math.PI / 180;
+      const φ2 = lat2 * Math.PI / 180;
+      const Δφ = (lat2 - lat1) * Math.PI / 180;
+      const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+      const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                Math.cos(φ1) * Math.cos(φ2) *
+                Math.sin(Δλ/2) * Math.sin(Δλ/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return Math.round(R * c * 10) / 10;
+    }
+
+    function fetchLiveGPS() {
+      const banner = document.getElementById("geofenceBanner");
+      banner.className = "geofence-status-banner status-locating";
+      banner.innerHTML = "<span>📡 GPS Donanımından canlı konum alınıyor... Lütfen bekleyiniz.</span>";
+
+      if (!navigator.geolocation) {
+        banner.className = "geofence-status-banner status-outside";
+        banner.innerHTML = "<span>❌ Tarayıcınız Geolocation GPS API desteklemiyor.</span>";
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          APP_STATE.deviceCoords = {
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude,
+            accuracy: pos.coords.accuracy
+          };
+          document.getElementById("coordsDisplay").textContent = 
+            `Cihaz Koordinatı: ${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)} (±${Math.round(pos.coords.accuracy)}m)`;
+          evaluateGeofence();
+        },
+        (err) => {
+          console.warn("GPS Hatası:", err);
+          banner.className = "geofence-status-banner status-outside";
+          banner.innerHTML = `<span>⚠️ Konum izni verilmedi veya GPS sinyali zayıf (${err.message}). Test için "Fabrika İçi Simüle Et" butonunu kullanabilirsiniz.</span>`;
+          document.getElementById("coordsDisplay").textContent = "Cihaz Koordinatı: Alınamadı (İzin verilmedi)";
+          APP_STATE.isInsideGeofence = false;
+          updatePunchButtonsState();
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
+    }
+
+    /* Simulate inside geofence for testing/demo */
+    async function simulateInsideGeofence() {
+      const selectedLocId = document.getElementById("punchLocationSelect").value;
+      const loc = APP_STATE.locations.find(l => l.location_id === selectedLocId);
+      if (!loc) return;
+
+      // Small jitter ~5 meters
+      APP_STATE.deviceCoords = {
+        latitude: loc.latitude + 0.00003,
+        longitude: loc.longitude + 0.00002,
+        accuracy: 5
+      };
+
+      document.getElementById("coordsDisplay").textContent = 
+        `Cihaz Koordinatı (Simüle): ${APP_STATE.deviceCoords.latitude.toFixed(5)}, ${APP_STATE.deviceCoords.longitude.toFixed(5)}`;
+      showToast("Fabrika kapsama alanına sanal olarak giriş yapıldı.", "success");
+      evaluateGeofence();
+    }
+
+    async function evaluateGeofence() {
+      const select = document.getElementById("punchLocationSelect");
+      const banner = document.getElementById("geofenceBanner");
+      const distDisplay = document.getElementById("distanceDisplay");
+
+      if (!APP_STATE.deviceCoords) {
+        distDisplay.textContent = "Mesafe: Konum bekleniyor...";
+        return;
+      }
+
+      const locId = select.value;
+      const loc = APP_STATE.locations.find(l => l.location_id === locId);
+      if (!loc) {
+        banner.className = "geofence-status-banner status-outside";
+        banner.textContent = "Geçerli bir lokasyon seçilmedi.";
+        APP_STATE.isInsideGeofence = false;
+        updatePunchButtonsState();
+        return;
+      }
+
+      const dist = calculateDistanceMeters(
+        APP_STATE.deviceCoords.latitude,
+        APP_STATE.deviceCoords.longitude,
+        loc.latitude,
+        loc.longitude
+      );
+
+      APP_STATE.distanceMeters = dist;
+      distDisplay.textContent = `Mesafe: ${dist} metre (İzin verilen: ${loc.allowed_radius_meters}m)`;
+
+      if (dist <= loc.allowed_radius_meters) {
+        APP_STATE.isInsideGeofence = true;
+        banner.className = "geofence-status-banner status-inside";
+        banner.innerHTML = `<span>✅ <strong>KAPSAMA ALANI İÇİNDESİNİZ</strong> — ${loc.name} tesisine ${dist}m mesafedesiniz. İşlem yapabilirsiniz.</span>`;
+      } else {
+        APP_STATE.isInsideGeofence = false;
+        banner.className = "geofence-status-banner status-outside";
+        banner.innerHTML = `<span>⛔ <strong>KAPSAMA ALANI DIŞINDASINIZ!</strong> Fabrika merkezine ${dist}m uzaklıktasınız (Maks: ${loc.allowed_radius_meters}m). Giriş/Çıkış yapabilmek için fabrika sınırlarına giriniz.</span>`;
+      }
+
+      updatePunchButtonsState();
+    }
+
+    async function loadLocationsDropdown() {
+      const locs = await dbGetAll("locations");
+      APP_STATE.locations = locs.filter(l => l.is_active);
+      const sel = document.getElementById("punchLocationSelect");
+      sel.innerHTML = "";
+
+      APP_STATE.locations.forEach(loc => {
+        const opt = document.createElement("option");
+        opt.value = loc.location_id;
+        opt.textContent = `${loc.name} (Yarıçap: ${loc.allowed_radius_meters}m)`;
+        sel.appendChild(opt);
+      });
+    }
+
+    /* ======================================================== */
+    /* 6. STATE MACHINE & PUNCH TOGGLE VALIDATION               */
+    /* ======================================================== */
+    async function updatePunchStateUI() {
+      const u = APP_STATE.currentUser;
+      if (!u) return;
+
+      const logs = await dbGetAll("attendance_logs");
+      const userLogs = logs.filter(l => l.username === u.username);
+
+      // Sort by timestamp descending
+      userLogs.sort((a, b) => new Date(b.log_timestamp) - new Date(a.log_timestamp));
+
+      const lastLog = userLogs[0];
+      const todayStr = new Date().toISOString().split("T")[0];
+
+      const stateText = document.getElementById("punchStateText");
+      const lastBadge = document.getElementById("lastPunchBadge");
+
+      if (!lastLog || lastLog.transaction_type === "ÇIKIŞ") {
+        stateText.textContent = "Mevcut Durum: VARDİYA DIŞINDA. Yeni bir vardiya başlatmak için GİRİŞ yapabilirsiniz.";
+        lastBadge.textContent = lastLog ? `Son İşlem: ÇIKIŞ (${formatTime(lastLog.log_timestamp)})` : "Bugün İşlem Yok";
+        lastBadge.className = "badge badge-out";
+        APP_STATE.allowedTransaction = "GİRİŞ";
+      } else {
+        stateText.textContent = `Mevcut Durum: VARDİYADASINIZ (Giriş: ${formatTime(lastLog.log_timestamp)}). Vardiyayı sonlandırmak için ÇIKIŞ yapınız.`;
+        lastBadge.textContent = `Son İşlem: GİRİŞ (${formatTime(lastLog.log_timestamp)})`;
+        lastBadge.className = "badge badge-in";
+        APP_STATE.allowedTransaction = "ÇIKIŞ";
+      }
+
+      updatePunchButtonsState();
+    }
+
+    function updatePunchButtonsState() {
+      const btnIn = document.getElementById("btnPunchIn");
+      const btnOut = document.getElementById("btnPunchOut");
+
+      const allowed = APP_STATE.allowedTransaction;
+      const inside = APP_STATE.isInsideGeofence;
+
+      // Only allow button if both toggle state allows it AND user is inside geofence
+      btnIn.disabled = !(allowed === "GİRİŞ" && inside);
+      btnOut.disabled = !(allowed === "ÇIKIŞ" && inside);
+    }
+
+    async function submitPunch(type) {
+      if (!APP_STATE.isInsideGeofence) {
+        showToast("Fabrika kapsama alanı dışındasınız! İşlem engellendi.", "danger");
+        return;
+      }
+
+      if (type !== APP_STATE.allowedTransaction) {
+        showToast(`Ardışık ${type} kaydı oluşturamazsınız! Lütfen sıralı işlem yapınız.`, "warning");
+        return;
+      }
+
+      const u = APP_STATE.currentUser;
+      const selLocId = document.getElementById("punchLocationSelect").value;
+      const loc = APP_STATE.locations.find(l => l.location_id === selLocId);
+
+      const now = new Date();
+      const logEntry = {
+        log_id: "log-" + Date.now() + "-" + Math.random().toString(36).substring(2, 6),
+        username: u.username,
+        full_name: u.full_name,
+        transaction_type: type,
+        log_date: now.toISOString().split("T")[0],
+        log_timestamp: now.toISOString(),
+        latitude: APP_STATE.deviceCoords.latitude,
+        longitude: APP_STATE.deviceCoords.longitude,
+        target_location_id: selLocId,
+        target_location_name: loc ? loc.name : "Bilinmeyen",
+        distance_meters: APP_STATE.distanceMeters,
+        geofence_status: "VERIFIED_INSIDE",
+        audit_notes: "Mobil web arayüzünden kaydedildi"
+      };
+
+      // 1. Save to local IndexedDB
+      await dbPut("attendance_logs", logEntry);
+
+      // 2. Post to Google Sheets Cloud
+      if (APP_STATE.googleSheetsUrl) {
+        postToGoogleSheets("punch", logEntry).then(ok => {
+          if (ok) console.log("Google Sheets'e başarıyla yazıldı.");
+        });
+      }
+
+      showToast(`${type} kaydı oluşturuldu! (${formatTime(now.toISOString())})`, "success");
+
+      // Refresh UI & Chart
+      await updatePunchStateUI();
+      await renderMonthlyChart();
+    }
+
+    /* ======================================================== */
+    /* 7. SHIFT PAIRING & OVERTIME (8H + EK MESAİ) ENGINE       */
+    /* ======================================================== */
+    function computePairedShifts(logs) {
+      const sorted = [...logs].sort((a, b) => new Date(a.log_timestamp) - new Date(b.log_timestamp));
+      const shifts = [];
+      const openShiftsByUser = {};
+
+      for (const log of sorted) {
+        const u = log.username;
+
+        if (log.transaction_type === "GİRİŞ") {
+          if (openShiftsByUser[u]) {
+            shifts.push({
+              username: u,
+              full_name: openShiftsByUser[u].full_name,
+              log_date: openShiftsByUser[u].log_date,
+              in_time: openShiftsByUser[u].log_timestamp,
+              out_time: null,
+              total_hours: 0,
+              regular_hours: 0,
+              overtime_hours: 0,
+              status: "EKSİK KAYIT / AÇIK VARDİYA",
+              location: openShiftsByUser[u].target_location_name
+            });
+          }
+          openShiftsByUser[u] = log;
+        } else if (log.transaction_type === "ÇIKIŞ") {
+          if (openShiftsByUser[u]) {
+            const inLog = openShiftsByUser[u];
+            const tIn = new Date(inLog.log_timestamp);
+            const tOut = new Date(log.log_timestamp);
+
+            const diffMs = Math.max(0, tOut - tIn);
+            const totalHours = Math.round((diffMs / (1000 * 60 * 60)) * 100) / 100;
+            const regularHours = Math.round(Math.min(totalHours, 8.00) * 100) / 100;
+            const overtimeHours = Math.round(Math.max(0, totalHours - 8.00) * 100) / 100;
+
+            shifts.push({
+              username: u,
+              full_name: inLog.full_name,
+              log_date: inLog.log_date,
+              in_time: inLog.log_timestamp,
+              out_time: log.log_timestamp,
+              total_hours: totalHours,
+              regular_hours: regularHours,
+              overtime_hours: overtimeHours,
+              status: "TAMAMLANDI",
+              location: inLog.target_location_name
+            });
+
+            delete openShiftsByUser[u];
+          } else {
+            shifts.push({
+              username: u,
+              full_name: log.full_name,
+              log_date: log.log_date,
+              in_time: null,
+              out_time: log.log_timestamp,
+              total_hours: 0,
+              regular_hours: 0,
+              overtime_hours: 0,
+              status: "GİRİŞSİZ ÇIKIŞ",
+              location: log.target_location_name
+            });
+          }
+        }
+      }
+
+      for (const u in openShiftsByUser) {
+        const inLog = openShiftsByUser[u];
+        shifts.push({
+          username: u,
+          full_name: inLog.full_name,
+          log_date: inLog.log_date,
+          in_time: inLog.log_timestamp,
+          out_time: null,
+          total_hours: 0,
+          regular_hours: 0,
+          overtime_hours: 0,
+          status: "EKSİK KAYIT / AÇIK VARDİYA",
+          location: inLog.target_location_name
+        });
+      }
+
+      return shifts;
+    }
+
+    /* ======================================================== */
+    /* 8. MONTHLY ATTENDANCE CHART (CHART.JS)                   */
+    /* ======================================================== */
+    async function renderMonthlyChart() {
+      const u = APP_STATE.currentUser;
+      if (!u) return;
+
+      const monthVal = document.getElementById("chartMonthSelect").value || getCurrentYearMonth();
+      const [year, month] = monthVal.split("-").map(Number);
+
+      const logs = await dbGetAll("attendance_logs");
+      const userLogs = logs.filter(l => l.username === u.username);
+      const pairedShifts = computePairedShifts(userLogs);
+
+      const monthShifts = pairedShifts.filter(s => {
+        const d = new Date(s.log_date);
+        return d.getFullYear() === year && (d.getMonth() + 1) === month;
+      });
+
+      const daysInMonth = new Date(year, month, 0).getDate();
+      const dayLabels = [];
+      const regularData = [];
+      const overtimeData = [];
+
+      let totalDaysWorked = 0;
+      let sumRegularHours = 0;
+      let sumOvertimeHours = 0;
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dayStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        dayLabels.push(`${day}`);
+
+        const dayShift = monthShifts.find(s => s.log_date === dayStr);
+        if (dayShift && dayShift.total_hours > 0) {
+          totalDaysWorked++;
+          sumRegularHours += dayShift.regular_hours;
+          sumOvertimeHours += dayShift.overtime_hours;
+          regularData.push(dayShift.regular_hours);
+          overtimeData.push(dayShift.overtime_hours);
+        } else {
+          regularData.push(0);
+          overtimeData.push(0);
+        }
+      }
+
+      document.getElementById("metricDays").textContent = totalDaysWorked;
+      document.getElementById("metricRegularHours").textContent = sumRegularHours.toFixed(1) + "h";
+      document.getElementById("metricOvertimeHours").textContent = sumOvertimeHours.toFixed(1) + "h";
+      document.getElementById("metricTotalHours").textContent = (sumRegularHours + sumOvertimeHours).toFixed(1) + "h";
+
+      const ctx = document.getElementById("monthlyAttendanceChart").getContext("2d");
+
+      if (APP_STATE.chartInstance) {
+        APP_STATE.chartInstance.destroy();
+      }
+
+      APP_STATE.chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: dayLabels,
+          datasets: [
+            {
+              label: 'Normal Mesai (max 8h)',
+              data: regularData,
+              backgroundColor: '#2563eb',
+              borderRadius: 4,
+              stack: 'ShiftStack'
+            },
+            {
+              label: 'Ek Mesai (Fazla Mesai)',
+              data: overtimeData,
+              backgroundColor: '#f97316',
+              borderRadius: 4,
+              stack: 'ShiftStack'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            tooltip: {
+              callbacks: {
+                footer: (items) => {
+                  let total = 0;
+                  items.forEach(i => total += i.parsed.y);
+                  return `Günlük Toplam: ${total.toFixed(2)} Saat`;
+                }
+              }
+            },
+            legend: {
+              position: 'top',
+              labels: { font: { family: 'Inter', weight: 600 } }
+            }
+          },
+          scales: {
+            x: {
+              title: { display: true, text: 'Ayın Günleri', font: { weight: 600 } },
+              grid: { display: false }
+            },
+            y: {
+              title: { display: true, text: 'Çalışma Saati', font: { weight: 600 } },
+              beginAtZero: true,
+              suggestedMax: 12,
+              ticks: { stepSize: 2 }
+            }
+          }
+        }
+      });
+    }
+
+    /* ======================================================== */
+    /* 9. MY LOGS TABLE (EMPLOYEE HISTORY VIEW)                 */
+    /* ======================================================== */
+    async function renderMyLogsTable() {
+      const u = APP_STATE.currentUser;
+      if (!u) return;
+
+      const logs = await dbGetAll("attendance_logs");
+      const userLogs = logs.filter(l => l.username === u.username);
+      const shifts = computePairedShifts(userLogs);
+      shifts.sort((a, b) => new Date(b.log_date) - new Date(a.log_date));
+
+      const tbody = document.getElementById("myLogsTableBody");
+      tbody.innerHTML = "";
+
+      if (shifts.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--slate-400); padding: 2rem;">Henüz bir çalışma kaydınız bulunmuyor.</td></tr>`;
+        return;
+      }
+
+      shifts.forEach(s => {
+        const tr = document.createElement("tr");
+        const statusBadge = (s.status === "TAMAMLANDI")
+          ? `<span class="badge badge-done">TAMAMLANDI</span>`
+          : `<span class="badge badge-open">${s.status}</span>`;
+
+        tr.innerHTML = `
+          <td><strong>${s.log_date}</strong></td>
+          <td>${s.in_time ? formatTime(s.in_time) : '--:--'}</td>
+          <td>${s.out_time ? formatTime(s.out_time) : '--:--'}</td>
+          <td><strong>${s.total_hours.toFixed(2)} Saat</strong></td>
+          <td style="color: var(--primary); font-weight: 600;">${s.regular_hours.toFixed(2)}h</td>
+          <td style="color: #f97316; font-weight: 700;">${s.overtime_hours > 0 ? '+' + s.overtime_hours.toFixed(2) + 'h' : '0.00h'}</td>
+          <td>${statusBadge}</td>
+          <td>${s.location || '-'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    /* ======================================================== */
+    /* 10. ADMIN USER MANAGEMENT (MASTER ADMIN)                 */
+    /* ======================================================== */
+    async function renderAdminUsersTable() {
+      const users = await dbGetAll("users");
+      users.sort((a, b) => a.full_name.localeCompare(b.full_name, 'tr'));
+
+      const tbody = document.getElementById("adminUsersTableBody");
+      tbody.innerHTML = "";
+
+      users.forEach(u => {
+        const tr = document.createElement("tr");
+        const roleLabel = (u.role === "ADMIN")
+          ? `<span class="role-badge role-admin">MASTER ADMIN</span>`
+          : `<span class="role-badge role-emp">ÇALIŞAN</span>`;
+
+        const activeLabel = u.is_active
+          ? `<span class="badge badge-in">Aktif</span>`
+          : `<span class="badge badge-out">Pasif</span>`;
+
+        tr.innerHTML = `
+          <td><code>${u.employee_code || '-'}</code></td>
+          <td><strong>${u.full_name}</strong></td>
+          <td><code>${u.username}</code></td>
+          <td>
+            <span style="font-family: monospace; font-weight: 700; background: var(--slate-100); padding: 0.15rem 0.4rem; border-radius: 4px;">
+              ${u.password_pin}
+            </span>
+          </td>
+          <td>${u.department || '-'}</td>
+          <td>${roleLabel}</td>
+          <td>${activeLabel}</td>
+          <td>
+            <button class="btn btn-secondary btn-sm" onclick="editUser('${u.user_id}')">Düzenle</button>
+            ${u.username !== 'admin' ? `<button class="btn btn-danger btn-sm" onclick="deleteUser('${u.user_id}', '${u.full_name}')">Sil</button>` : ''}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Update Filter in Admin Logs
+      const filterUser = document.getElementById("adminFilterUser");
+      const currentSelected = filterUser.value;
+      filterUser.innerHTML = '<option value="ALL">Tüm Personel</option>';
+      users.forEach(u => {
+        const opt = document.createElement("option");
+        opt.value = u.username;
+        opt.textContent = `${u.full_name} (${u.username})`;
+        filterUser.appendChild(opt);
+      });
+      filterUser.value = currentSelected || "ALL";
+    }
+
+    function openUserModal(user = null) {
+      document.getElementById("modalUserId").value = user ? user.user_id : "";
+      document.getElementById("modalFullName").value = user ? user.full_name : "";
+      document.getElementById("modalUsername").value = user ? user.username : "";
+      document.getElementById("modalPin").value = user ? user.password_pin : "";
+      document.getElementById("modalEmpCode").value = user ? user.employee_code : "";
+      document.getElementById("modalDepartment").value = user ? user.department : "";
+      document.getElementById("modalRole").value = user ? user.role : "EMPLOYEE";
+      document.getElementById("modalIsActive").value = user ? String(user.is_active) : "true";
+
+      document.getElementById("userModalTitle").textContent = user ? "Çalışan Bilgilerini Düzenle" : "Yeni Çalışan Ekle";
+      document.getElementById("userModal").classList.add("open");
+    }
+
+    function closeUserModal() {
+      document.getElementById("userModal").classList.remove("open");
+    }
+
+    async function editUser(userId) {
+      const user = await dbGet("users", userId);
+      if (user) openUserModal(user);
+    }
+
+    async function saveUserModal(e) {
+      e.preventDefault();
+      const userId = document.getElementById("modalUserId").value || ("usr-" + Date.now());
+      const username = document.getElementById("modalUsername").value.trim().toLowerCase();
+      const pin = document.getElementById("modalPin").value.trim();
+      const fullName = document.getElementById("modalFullName").value.trim();
+      const empCode = document.getElementById("modalEmpCode").value.trim();
+      const department = document.getElementById("modalDepartment").value.trim();
+      const role = document.getElementById("modalRole").value;
+      const isActive = document.getElementById("modalIsActive").value === "true";
+
+      const userData = {
+        user_id: userId,
+        username: username,
+        password_pin: pin,
+        full_name: fullName,
+        employee_code: empCode,
+        department: department,
+        role: role,
+        is_active: isActive,
+        updated_at: new Date().toISOString()
+      };
+
+      // Save locally
+      await dbPut("users", userData);
+
+      // Post to Google Sheets Cloud
+      if (APP_STATE.googleSheetsUrl) {
+        postToGoogleSheets("saveUser", userData).then(ok => {
+          if (ok) showToast("Google Sheets'e kaydedildi.", "success");
+        });
+      }
+
+      showToast(`${fullName} kullanıcısı kaydedildi.`, "success");
+      closeUserModal();
+      renderAdminUsersTable();
+    }
+
+    async function deleteUser(userId, name) {
+      if (!confirm(`"${name}" personelini silmek istediğinize emin misiniz?`)) return;
+      await dbDelete("users", userId);
+
+      if (APP_STATE.googleSheetsUrl) {
+        postToGoogleSheets("deleteUser", { user_id: userId });
+      }
+
+      showToast(`${name} başarıyla silindi.`, "warning");
+      renderAdminUsersTable();
+    }
+
+    /* ======================================================== */
+    /* 11. ADMIN LOGS & PUANTAJ REPORT                          */
+    /* ======================================================== */
+    async function renderAdminLogsTable() {
+      const filterUser = document.getElementById("adminFilterUser").value;
+      const filterMonth = document.getElementById("adminFilterMonth").value;
+
+      const logs = await dbGetAll("attendance_logs");
+      let shifts = computePairedShifts(logs);
+
+      if (filterUser && filterUser !== "ALL") {
+        shifts = shifts.filter(s => s.username === filterUser);
+      }
+
+      if (filterMonth) {
+        const [y, m] = filterMonth.split("-").map(Number);
+        shifts = shifts.filter(s => {
+          const d = new Date(s.log_date);
+          return d.getFullYear() === y && (d.getMonth() + 1) === m;
+        });
+      }
+
+      shifts.sort((a, b) => new Date(b.log_date) - new Date(a.log_date));
+
+      const tbody = document.getElementById("adminLogsTableBody");
+      tbody.innerHTML = "";
+
+      if (shifts.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; color: var(--slate-400); padding: 2rem;">Filtreye uygun puantaj kaydı bulunamadı.</td></tr>`;
+        return;
+      }
+
+      shifts.forEach(s => {
+        const tr = document.createElement("tr");
+        const statusBadge = (s.status === "TAMAMLANDI")
+          ? `<span class="badge badge-done">TAMAMLANDI</span>`
+          : `<span class="badge badge-open">${s.status}</span>`;
+
+        tr.innerHTML = `
+          <td><strong>${s.log_date}</strong></td>
+          <td><strong>${s.full_name}</strong> <small style="color:var(--slate-500);">(${s.username})</small></td>
+          <td>${s.in_time ? formatTime(s.in_time) : '--:--'}</td>
+          <td>${s.out_time ? formatTime(s.out_time) : '--:--'}</td>
+          <td><strong>${s.total_hours.toFixed(2)}h</strong></td>
+          <td style="color: var(--primary); font-weight: 700;">${s.regular_hours.toFixed(2)}h</td>
+          <td style="color: #f97316; font-weight: 700;">${s.overtime_hours > 0 ? '+' + s.overtime_hours.toFixed(2) + 'h' : '0.00h'}</td>
+          <td>${statusBadge}</td>
+          <td>${s.location || '-'}</td>
+          <td><span class="badge badge-in">GEOFENCE DOĞRULANDI</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    /* ======================================================== */
+    /* 12. EXCEL EXPORT (.XLSX) WITH 8H + EK MESAİ COLUMNS      */
+    /* ======================================================== */
+    async function exportPayrollToExcel() {
+      const logs = await dbGetAll("attendance_logs");
+      const users = await dbGetAll("users");
+      const shifts = computePairedShifts(logs);
+
+      if (shifts.length === 0) {
+        showToast("Dışa aktarılacak puantaj verisi bulunamadı.", "warning");
+        return;
+      }
+
+      // 1. Sheet 1: Günlük Mesai ve Ek Mesai Dökümü (Daily Shifts)
+      const dailyRows = shifts.map(s => {
+        const u = users.find(user => user.username === s.username);
+        return {
+          "Tarih": s.log_date,
+          "Sicil No": u ? u.employee_code : "-",
+          "Ad Soyad": s.full_name,
+          "Kullanıcı Adı": s.username,
+          "Departman": u ? u.department : "-",
+          "Giriş Saati": s.in_time ? formatTime(s.in_time) : "--:--",
+          "Çıkış Saati": s.out_time ? formatTime(s.out_time) : "--:--",
+          "Toplam Çalışma (Saat)": s.total_hours,
+          "Normal Mesai (8 Saat Baz)": s.regular_hours,
+          "Ek Mesai (Fazla Çalışma)": s.overtime_hours,
+          "Durum": s.status,
+          "Lokasyon": s.location || "-"
+        };
+      });
+
+      // 2. Sheet 2: Aylık Çalışan Puantaj Özeti (Monthly Summary per Employee)
+      const monthlySummaryMap = {};
+      shifts.forEach(s => {
+        if (s.total_hours > 0) {
+          const key = s.username + "_" + s.log_date.substring(0, 7);
+          if (!monthlySummaryMap[key]) {
+            monthlySummaryMap[key] = {
+              "Dönem (Ay)": s.log_date.substring(0, 7),
+              "Personel": s.full_name,
+              "Kullanıcı Adı": s.username,
+              "Toplam Çalışma Günü": 0,
+              "Toplam Normal Mesai (Saat)": 0,
+              "Toplam Ek Mesai (Saat)": 0,
+              "Genel Toplam Saat": 0
+            };
+          }
+          monthlySummaryMap[key]["Toplam Çalışma Günü"] += 1;
+          monthlySummaryMap[key]["Toplam Normal Mesai (Saat)"] += s.regular_hours;
+          monthlySummaryMap[key]["Toplam Ek Mesai (Saat)"] += s.overtime_hours;
+          monthlySummaryMap[key]["Genel Toplam Saat"] += s.total_hours;
+        }
+      });
+
+      const summaryRows = Object.values(monthlySummaryMap).map(row => ({
+        ...row,
+        "Toplam Normal Mesai (Saat)": Math.round(row["Toplam Normal Mesai (Saat)"] * 100) / 100,
+        "Toplam Ek Mesai (Saat)": Math.round(row["Toplam Ek Mesai (Saat)"] * 100) / 100,
+        "Genel Toplam Saat": Math.round(row["Genel Toplam Saat"] * 100) / 100
+      }));
+
+      // 3. Build Excel Workbook with SheetJS
+      const wb = XLSX.utils.book_new();
+
+      const wsDaily = XLSX.utils.json_to_sheet(dailyRows);
+      XLSX.utils.book_append_sheet(wb, wsDaily, "Puantaj_Detay");
+
+      const wsSummary = XLSX.utils.json_to_sheet(summaryRows);
+      XLSX.utils.book_append_sheet(wb, wsSummary, "Aylik_Ozet");
+
+      // Auto-fit column widths
+      [wsDaily, wsSummary].forEach(ws => {
+        const range = XLSX.utils.decode_range(ws['!ref'] || "A1:A1");
+        const colWidths = [];
+        for (let C = range.s.c; C <= range.e.c; ++C) {
+          colWidths.push({ wch: 18 });
+        }
+        ws['!cols'] = colWidths;
+      });
+
+      // 4. Download file
+      const fileName = `Puantaj_Raporu_${new Date().toISOString().split("T")[0]}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+
+      showToast(`Excel dosyası başarıyla indirildi (${fileName})`, "success");
+    }
+
+    /* ======================================================== */
+    /* 13. ADMIN LOCATIONS MANAGEMENT                           */
+    /* ======================================================== */
+    async function renderAdminLocationsTable() {
+      const locs = await dbGetAll("locations");
+      const tbody = document.getElementById("adminLocationsTableBody");
+      tbody.innerHTML = "";
+
+      locs.forEach(l => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><strong>${l.name}</strong></td>
+          <td><code>${l.latitude.toFixed(5)}</code></td>
+          <td><code>${l.longitude.toFixed(5)}</code></td>
+          <td><span class="badge badge-in">${l.allowed_radius_meters} Metre</span></td>
+          <td>${l.is_active ? '<span class="badge badge-in">Aktif</span>' : '<span class="badge badge-out">Pasif</span>'}</td>
+          <td>
+            <button class="btn btn-secondary btn-sm" onclick="editLocation('${l.location_id}')">Düzenle</button>
+            <button class="btn btn-secondary btn-sm" onclick="setCurrentGPSToLocation('${l.location_id}')" title="Şu anki konumumu bu tesisin merkezi yap">📍 Konumumu Ata</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteLocation('${l.location_id}', '${l.name}')">Sil</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function openLocationModal(loc = null) {
+      document.getElementById("modalLocId").value = loc ? loc.location_id : "";
+      document.getElementById("modalLocName").value = loc ? loc.name : "";
+      document.getElementById("modalLocLat").value = loc ? loc.latitude : "";
+      document.getElementById("modalLocLng").value = loc ? loc.longitude : "";
+      document.getElementById("modalLocRadius").value = loc ? loc.allowed_radius_meters : 150;
+      document.getElementById("modalLocActive").value = loc ? String(loc.is_active) : "true";
+
+      document.getElementById("locationModalTitle").textContent = loc ? "Lokasyonu Düzenle" : "Yeni Lokasyon / Geofence Ekle";
+      document.getElementById("locationModal").classList.add("open");
+    }
+
+    function closeLocationModal() {
+      document.getElementById("locationModal").classList.remove("open");
+    }
+
+    async function editLocation(locId) {
+      const loc = await dbGet("locations", locId);
+      if (loc) openLocationModal(loc);
+    }
+
+    function fillModalCoordsWithMyGPS() {
+      if (APP_STATE.deviceCoords) {
+        document.getElementById("modalLocLat").value = APP_STATE.deviceCoords.latitude.toFixed(6);
+        document.getElementById("modalLocLng").value = APP_STATE.deviceCoords.longitude.toFixed(6);
+        showToast("Cihaz GPS koordinatları forma aktarıldı.", "success");
+      } else {
+        showToast("GPS konumu henüz alınamadı. Lütfen bekleyiniz.", "warning");
+      }
+    }
+
+    async function setCurrentGPSToLocation(locId) {
+      if (!APP_STATE.deviceCoords) {
+        showToast("Cihaz GPS konumu henüz alınamadı.", "warning");
+        return;
+      }
+      const loc = await dbGet("locations", locId);
+      if (!loc) return;
+
+      loc.latitude = APP_STATE.deviceCoords.latitude;
+      loc.longitude = APP_STATE.deviceCoords.longitude;
+      await dbPut("locations", loc);
+
+      if (APP_STATE.googleSheetsUrl) {
+        postToGoogleSheets("saveLocation", loc);
+      }
+
+      showToast(`"${loc.name}" koordinatı güncellendi. Mesafe: 0 metre oldu!`, "success");
+      await loadLocationsDropdown();
+      renderAdminLocationsTable();
+      evaluateGeofence();
+    }
+
+    async function saveLocationModal(e) {
+      e.preventDefault();
+      const locId = document.getElementById("modalLocId").value || ("loc-" + Date.now());
+      const name = document.getElementById("modalLocName").value.trim();
+      const lat = parseFloat(document.getElementById("modalLocLat").value);
+      const lng = parseFloat(document.getElementById("modalLocLng").value);
+      const radius = parseInt(document.getElementById("modalLocRadius").value) || 150;
+      const isActive = document.getElementById("modalLocActive").value === "true";
+
+      const locData = {
+        location_id: locId,
+        name: name,
+        latitude: lat,
+        longitude: lng,
+        allowed_radius_meters: radius,
+        is_active: isActive
+      };
+
+      await dbPut("locations", locData);
+
+      if (APP_STATE.googleSheetsUrl) {
+        postToGoogleSheets("saveLocation", locData);
+      }
+
+      showToast(`Lokasyon "${name}" kaydedildi.`, "success");
+      closeLocationModal();
+      await loadLocationsDropdown();
+      renderAdminLocationsTable();
+    }
+
+    async function deleteLocation(locId, name) {
+      if (!confirm(`"${name}" lokasyonunu silmek istediğinize emin misiniz?`)) return;
+      await dbDelete("locations", locId);
+      showToast(`${name} silindi.`, "warning");
+      await loadLocationsDropdown();
+      renderAdminLocationsTable();
+    }
+
+    /* ======================================================== */
+    /* 14. UTILITIES & TOASTS                                   */
+    /* ======================================================== */
+    function formatTime(isoString) {
+      if (!isoString) return "--:--";
+      const d = new Date(isoString);
+      return d.toLocaleTimeString("tr-TR", { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function getCurrentYearMonth() {
+      const now = new Date();
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    }
+
+    function populateMonthDropdowns() {
+      const months = [];
+      const now = new Date();
+      for (let i = -3; i <= 3; i++) {
+        const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+        const val = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        const label = d.toLocaleDateString("tr-TR", { month: 'long', year: 'numeric' });
+        months.push({ val, label });
+      }
+
+      const selChart = document.getElementById("chartMonthSelect");
+      const selAdmin = document.getElementById("adminFilterMonth");
+
+      selChart.innerHTML = "";
+      selAdmin.innerHTML = "";
+
+      const current = getCurrentYearMonth();
+      months.forEach(m => {
+        const opt1 = document.createElement("option");
+        opt1.value = m.val;
+        opt1.textContent = m.label;
+        if (m.val === current) opt1.selected = true;
+        selChart.appendChild(opt1);
+
+        const opt2 = document.createElement("option");
+        opt2.value = m.val;
+        opt2.textContent = m.label;
+        if (m.val === current) opt2.selected = true;
+        selAdmin.appendChild(opt2);
+      });
+    }
+
+    function showToast(message, type = "info") {
+      const container = document.getElementById("toastContainer");
+      const toast = document.createElement("div");
+      toast.className = `toast toast-${type}`;
+      toast.innerHTML = `<span>${message}</span>`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        toast.style.transform = "translateY(10px)";
+        toast.style.transition = "all 0.3s ease";
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    /* App Initializer */
+    window.addEventListener("DOMContentLoaded", async () => {
+      await initDatabase();
+      updateCloudBadges();
+      checkExistingSession();
+    });
+  </script>
+</body>
+</html>
